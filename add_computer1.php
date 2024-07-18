@@ -146,13 +146,20 @@
         </select>
         
         <label for="case_photo">Case Photo:</label>
-        <input type="file" id="case_photo" name="case_photo">
+        <input type="file" id="case_photo" name="case_photo" required>
         
         <label for="base_price">Base Price:</label>
         <input type="number" id="base_price" name="base_price" step="0.01" readonly required>
         
         <label for="markup">Markup:</label>
         <input type="number" id="markup" name="markup" step="0.01" required>
+        <form action="add_computer.php" method="post">
+        <select id="shop" name="shop" required>
+            <option value="Tech Power">Tech Power</option>
+            <option value="HQ">HQ</option>
+            <option value="Artem">Artem</option>
+            <option value="4">4</option>
+        </select>
         
         <input type="submit" value="Add Computer Build">
     </form>
