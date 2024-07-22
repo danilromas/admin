@@ -44,6 +44,27 @@
             font-weight: bold;
             margin-bottom: 10px;
         }
+        .computer .buttons {
+            margin-top: 10px;
+        }
+        .computer .buttons form {
+            display: inline-block;
+        }
+        .computer .buttons button {
+            padding: 5px 10px;
+            margin: 5px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .edit-button {
+            background-color: #007BFF;
+            color: white;
+        }
+        .delete-button {
+            background-color: #DC3545;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -154,8 +175,17 @@
             echo '<p class="availability">Availability: Out of Stock</p>';
         }
         
-        // Link to buy now
-        echo '<a href="/vendor/product.php?id=' . $row['id'] . '">Buy Now</a>';
+        // Edit and Delete buttons
+        echo '<div class="buttons">';
+        echo '<form action="edit_computer.php" method="get">';
+        echo '<input type="hidden" name="id" value="' . $row['id'] . '">';
+        echo '<button type="submit" class="edit-button">Edit</button>';
+        echo '</form>';
+        echo '<form action="delete_computer.php" method="post">';
+        echo '<input type="hidden" name="id" value="' . $row['id'] . '">';
+        echo '<button type="submit" class="delete-button">Delete</button>';
+        echo '</form>';
+        echo '</div>';
         
         echo '</div>';
     }
