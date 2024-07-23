@@ -13,20 +13,28 @@ if ($conn->connect_error) {
 $computer = null;
 if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['id'])) {
     $id = $_GET['id'];
+    echo "ID received: " . htmlspecialchars($id) . "<br>"; // Выводим ID
 
     $sql = "SELECT * FROM computers WHERE id = ?";
     $stmt = $conn->prepare($sql);
+    if ($stmt === false) {
+        die("Prepare failed: " . $conn->error);
+    }
+
     $stmt->bind_param("i", $id);
-    $stmt->execute();
+    if (!$stmt->execute()) {
+        die("Execute failed: " . $stmt->error);
+    }
+
     $result = $stmt->get_result();
-    $computer = $result->fetch_assoc();
+    if ($result->num_rows > 0) {
+        $computer = $result->fetch_assoc();
+    } else {
+        echo "No records found for ID: " . htmlspecialchars($id) . "<br>";
+    }
 
     $stmt->close();
 }
-
-$conn->close();
-?>
-
 
 $conn->close();
 ?>
@@ -102,37 +110,41 @@ $conn->close();
 </head>
 <body>
     <h2>Sell Computer</h2>
-    <form action="create_order.php" method="POST">
-        <input type="hidden" name="computer_id" value="<?php echo $computer['id']; ?>">
-        
-        <label for="base_price">Base Price:</label>
-        <input type="number" id="base_price" class="readonly" value="<?php echo $computer['final_price']; ?>" readonly>
+    <?php if ($computer): ?>
+        <form action="create_order.php" method="POST">
+            <input type="hidden" name="computer_id" value="<?php echo htmlspecialchars($computer['id']); ?>">
+            
+            <label for="base_price">Base Price:</label>
+            <input type="number" id="base_price" class="readonly" value="<?php echo htmlspecialchars($computer['final_price']); ?>" readonly>
 
-        <label for="date">Date:</label>
-        <input type="date" id="date" name="date" required>
-        
-        <label for="name">Full Name:</label>
-        <input type="text" id="name" name="name" required>
-        
-        <label for="city">City:</label>
-        <input type="text" id="city" name="city" required>
-        
-        <label for="delivery">Delivery Method:</label>
-        <select id="delivery" name="delivery" required>
-            <option value="До города">До города</option>
-            <option value="Самовывоз">Самовывоз</option>
-        </select>
-        
-        <label for="additional">Additional Components:</label>
-        <textarea id="additional" name="additional"></textarea>
-        
-        <label for="additional_price">Additional Price:</label>
-        <input type="number" id="additional_price" name="additional_price" step="0.01">
+            <label for="date">Date:</label>
+            <input type="date" id="date" name="date" required>
+            
+            <label for="name">Full Name:</label>
+            <input type="text" id="name" name="name" required>
+            
+            <label for="city">City:</label>
+            <input type="text" id="city" name="city" required>
+            
+            <label for="delivery">Delivery Method:</label>
+            <select id="delivery" name="delivery" required>
+                <option value="До города">До города</option>
+                <option value="Самовывоз">Самовывоз</option>
+            </select>
+            
+            <label for="additional">Additional Components:</label>
+            <textarea id="additional" name="additional"></textarea>
+            
+            <label for="additional_price">Additional Price:</label>
+            <input type="number" id="additional_price" name="additional_price" step="0.01">
 
-        <label for="total_price">Total Price:</label>
-        <input type="number" id="total_price" name="total_price" step="0.01" readonly>
+            <label for="total_price">Total Price:</label>
+            <input type="number" id="total_price" name="total_price" step="0.01" readonly>
 
-        <input type="submit" value="Confirm Order">
-    </form>
+            <input type="submit" value="Confirm Order">
+        </form>
+    <?php else: ?>
+        <p>Error: Computer not found.</p>
+    <?php endif; ?>
 </body>
 </html>

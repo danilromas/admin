@@ -7,63 +7,111 @@
         body {
             font-family: Arial, sans-serif;
             display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            align-items: flex-start;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .shop-section {
+            width: 80%;
+            max-width: 1200px;
+            margin: 20px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .shop-section h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #007BFF;
+            padding-bottom: 10px;
+            color: #333;
         }
         .computer {
-            width: 300px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            padding: 10px;
+            width: 100%;
+            max-width: 350px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
             margin: 10px;
             text-align: center;
-            background-color: #f9f9f9;
+            background: linear-gradient(to bottom right, #f9f9f9, #ffffff);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            display: inline-block;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .computer:hover {
+            transform: scale(1.02);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
         }
         .computer img {
             width: 100%;
             height: auto;
-            border-radius: 5px;
-            margin-bottom: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
         }
         .computer h3 {
-            font-size: 20px;
+            font-size: 22px;
             margin-bottom: 10px;
+            color: #333;
         }
         .computer p {
             font-size: 16px;
             margin-bottom: 10px;
+            color: #666;
         }
         .computer .price {
-            font-size: 18px;
+            font-size: 20px;
             font-weight: bold;
             margin-bottom: 10px;
+            color: #007BFF;
         }
         .computer .availability {
-            color: green;
+            font-size: 16px;
+            color: #28A745;
             font-weight: bold;
             margin-bottom: 10px;
         }
         .computer .buttons {
-            margin-top: 10px;
+            margin-top: 15px;
         }
         .computer .buttons form {
             display: inline-block;
         }
         .computer .buttons button {
-            padding: 5px 10px;
+            padding: 8px 15px;
             margin: 5px;
             border: none;
-            border-radius: 3px;
+            border-radius: 5px;
             cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.2s, transform 0.2s;
+        }
+        .computer .buttons button:hover {
+            transform: scale(1.05);
         }
         .edit-button {
             background-color: #007BFF;
             color: white;
         }
+        .edit-button:hover {
+            background-color: #0056b3;
+        }
         .delete-button {
             background-color: #DC3545;
             color: white;
+        }
+        .delete-button:hover {
+            background-color: #c82333;
+        }
+        .sell_computer {
+            background-color: #28A745;
+            color: white;
+        }
+        .sell_computer:hover {
+            background-color: #218838;
         }
     </style>
 </head>
@@ -75,131 +123,100 @@
     $password = "";
     $dbname = "computer_sales";
 
+    // Создание соединения
     $conn = new mysqli($servername, $username, $password, $dbname);
 
+    // Проверка соединения
     if ($conn->connect_error) {
         die("Connection failed: " . $conn->connect_error);
     }
 
-    $sql = "SELECT * FROM computers";
-    $result = $conn->query($sql);
+    // Запрос для получения уникальных магазинов
+    $shopsQuery = "SELECT DISTINCT shop FROM computers ORDER BY shop";
+    $shopsResult = $conn->query($shopsQuery);
 
-    if ($result->num_rows > 0) {
-        while ($row = $result->fetch_assoc()) {
-            echo '<div class="computer">';
-            echo '<img src="/uploads/' . $row['case_photo'] . '.jpg" alt="Computer Photo">';
-            echo '<h3>' . htmlspecialchars($row['name']) . '</h3>';
-        
-            // Display components
-            echo '<ul>';
-            
-                   // Fetch motherboard name
-        $motherboard_id = $row['motherboard_id'];
-        $motherboard_query = "SELECT name FROM components WHERE id = ?";
-        $motherboard_stmt = $conn->prepare($motherboard_query);
-        $motherboard_stmt->bind_param("i", $motherboard_id);
-        $motherboard_stmt->execute();
-        $motherboard_result = $motherboard_stmt->get_result();
-        $motherboard_row = $motherboard_result->fetch_assoc();
-        echo '<li><strong>Материнская плата:</strong> ' . htmlspecialchars($motherboard_row['name']) . '</li>';
+    if ($shopsResult->num_rows > 0) {
+        while ($shopRow = $shopsResult->fetch_assoc()) {
+            $shopName = $shopRow['shop'];
 
-        // Fetch RAM name
-        $ram_id = $row['ram_id'];
-        $ram_query = "SELECT name FROM components WHERE id = ?";
-        $ram_stmt = $conn->prepare($ram_query);
-        $ram_stmt->bind_param("i", $ram_id);
-        $ram_stmt->execute();
-        $ram_result = $ram_stmt->get_result();
-        $ram_row = $ram_result->fetch_assoc();
-        echo '<li><strong>Оперативная память:</strong> ' . htmlspecialchars($ram_row['name']) . '</li>';
+            // Начало нового блока магазина
+            echo '<div class="shop-section">';
+            echo '<h2>' . htmlspecialchars($shopName) . '</h2>';
 
-        // Fetch GPU name
-        $gpu_id = $row['gpu_id'];
-        $gpu_query = "SELECT name FROM components WHERE id = ?";
-        $gpu_stmt = $conn->prepare($gpu_query);
-        $gpu_stmt->bind_param("i", $gpu_id);
-        $gpu_stmt->execute();
-        $gpu_result = $gpu_stmt->get_result();
-        $gpu_row = $gpu_result->fetch_assoc();
-        echo '<li><strong>Видеокарта:</strong> ' . htmlspecialchars($gpu_row['name']) . '</li>';
+            // Запрос для получения компьютеров конкретного магазина
+            $computersQuery = "SELECT * FROM computers WHERE shop = ? ORDER BY name";
+            $computersStmt = $conn->prepare($computersQuery);
+            $computersStmt->bind_param("s", $shopName);
+            $computersStmt->execute();
+            $computersResult = $computersStmt->get_result();
 
-        // Fetch PSU name
-        $psu_id = $row['psu_id'];
-        $psu_query = "SELECT name FROM components WHERE id = ?";
-        $psu_stmt = $conn->prepare($psu_query);
-        $psu_stmt->bind_param("i", $psu_id);
-        $psu_stmt->execute();
-        $psu_result = $psu_stmt->get_result();
-        $psu_row = $psu_result->fetch_assoc();
-        echo '<li><strong>Блок питания:</strong> ' . htmlspecialchars($psu_row['name']) . '</li>';
+            if ($computersResult->num_rows > 0) {
+                while ($computerRow = $computersResult->fetch_assoc()) {
+                    echo '<div class="computer">';
+                    echo '<img src="/uploads/' . htmlspecialchars($computerRow['case_photo']) . '.jpg" alt="Computer Photo">';
+                    echo '<h3>' . htmlspecialchars($computerRow['name']) . '</h3>';
 
-        // Fetch SSD name
-        $ssd_id = $row['ssd_id'];
-        $ssd_query = "SELECT name FROM components WHERE id = ?";
-        $ssd_stmt = $conn->prepare($ssd_query);
-        $ssd_stmt->bind_param("i", $ssd_id);
-        $ssd_stmt->execute();
-        $ssd_result = $ssd_stmt->get_result();
-        $ssd_row = $ssd_result->fetch_assoc();
-        echo '<li><strong>SSD:</strong> ' . htmlspecialchars($ssd_row['name']) . '</li>';
+                    // Вывод компонентов
+                    echo '<ul>';
+                    $components = [
+                        'motherboard' => $computerRow['motherboard_id'],
+                        'ram' => $computerRow['ram_id'],
+                        'gpu' => $computerRow['gpu_id'],
+                        'psu' => $computerRow['psu_id'],
+                        'ssd' => $computerRow['ssd_id'],
+                        'hdd' => $computerRow['hdd_id'],
+                        'case' => $computerRow['case_id']
+                    ];
 
-        // Fetch HDD name
-        $hdd_id = $row['hdd_id'];
-        $hdd_query = "SELECT name FROM components WHERE id = ?";
-        $hdd_stmt = $conn->prepare($hdd_query);
-        $hdd_stmt->bind_param("i", $hdd_id);
-        $hdd_stmt->execute();
-        $hdd_result = $hdd_stmt->get_result();
-        $hdd_row = $hdd_result->fetch_assoc();
-        echo '<li><strong>HDD:</strong> ' . htmlspecialchars($hdd_row['name']) . '</li>';
+                    foreach ($components as $type => $id) {
+                        $query = "SELECT name FROM components WHERE id = ?";
+                        $stmt = $conn->prepare($query);
+                        $stmt->bind_param("i", $id);
+                        $stmt->execute();
+                        $result = $stmt->get_result();
+                        $component = $result->fetch_assoc();
+                        echo '<li><strong>' . ucfirst($type) . ':</strong> ' . htmlspecialchars($component['name']) . '</li>';
+                    }
+                    echo '</ul>';
 
-        // Fetch Case name
-        $case_id = $row['case_id'];
-        $case_query = "SELECT name FROM components WHERE id = ?";
-        $case_stmt = $conn->prepare($case_query);
-        $case_stmt->bind_param("i", $case_id);
-        $case_stmt->execute();
-        $case_result = $case_stmt->get_result();
-        $case_row = $case_result->fetch_assoc();
-        echo '<li><strong>Корпус:</strong> ' . htmlspecialchars($case_row['name']) . '</li>';
+                    echo '<p class="price">Final Price: $' . htmlspecialchars($computerRow['final_price']) . '</p>';
 
-        echo '</ul>';
-        
-        // Additional details
-        echo '<p class="price">Final Price: $' . htmlspecialchars($row['final_price']) . '</p>';
-        
-        // Availability
-        if ($row['availability']) {
-            echo '<p class="availability">Availability: In Stock</p>';
-        } else {
-            echo '<p class="availability">Availability: Out of Stock</p>';
+                    // Доступность
+                    $availability = $computerRow['availability'] ? 'In Stock' : 'Out of Stock';
+                    echo '<p class="availability">Availability: ' . htmlspecialchars($availability) . '</p>';
+
+                    // Кнопки редактирования, удаления и продажи
+                    echo '<div class="buttons">';
+                    echo '<form action="edit_computer.php" method="get">';
+                    echo '<input type="hidden" name="id" value="' . htmlspecialchars($computerRow['id']) . '">';
+                    echo '<button type="submit" class="edit-button">Edit</button>';
+                    echo '</form>';
+
+                    echo '<form action="delete_computer.php" method="post">';
+                    echo '<input type="hidden" name="id" value="' . htmlspecialchars($computerRow['id']) . '">';
+                    echo '<button type="submit" class="delete-button">Delete</button>';
+                    echo '</form>';
+
+                    echo '<form action="sell_computer.php" method="get">';
+                    echo '<input type="hidden" name="id" value="' . htmlspecialchars($computerRow['id']) . '">';
+                    echo '<button type="submit" class="sell_computer">Sell</button>';
+                    echo '</form>';
+                    echo '</div>'; // Закрытие блока кнопок
+
+                    echo '</div>'; // Закрытие блока компьютера
+                }
+            } else {
+                echo "<p>No computers found in this shop.</p>";
+            }
+
+            echo '</div>'; // Закрытие блока магазина
         }
-        
-        // Edit and Delete buttons
-        echo '<div class="buttons">';
-        echo '<form action="edit_computer.php" method="get">';
-        echo '<input type="hidden" name="id" value="' . $row['id'] . '">';
-        echo '<button type="submit" class="edit-button">Edit</button>';
-        echo '</form>';
-        echo '<form action="delete_computer.php" method="post">';
-        echo '<input type="hidden" name="id" value="' . $row['id'] . '">';
-        echo '<button type="submit" class="delete-button">Delete</button>';
-        echo '</form>';
-        echo '</div>';
-        echo '<form action="sell_computer.php" method="post">';
-        echo '<input type="hidden" name="id" value="' . $row['id'] . '">';
-        echo '<button type="submit" class="sell_computer">Sell</button>';
-        echo '</form>';
-        echo '</div>';
-        
-        echo '</div>';
+    } else {
+        echo "<p>No shops found.</p>";
     }
-} else {
-    echo "No computers found.";
-}
+
     $conn->close();
     ?>
 
-   
 </body>
 </html>

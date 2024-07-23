@@ -37,9 +37,38 @@ if (isset($_GET['delete_id'])) {
     $delete_stmt->close();
 }
 
-// Получение данных из таблицы components
-$sql = "SELECT * FROM components";
-$result = $conn->query($sql);
+// Поиск
+$search = '';
+if (isset($_GET['search'])) {
+    $search = $conn->real_escape_string($_GET['search']);
+}
+
+// Сортировка по категории
+$category = '';
+if (isset($_GET['category'])) {
+    $category = $conn->real_escape_string($_GET['category']);
+}
+
+// Построение SQL-запроса
+$sql = "SELECT * FROM components WHERE name LIKE ?";
+
+if ($category) {
+    $sql .= " AND category = ?";
+}
+
+$sql .= " ORDER BY name";
+
+$stmt = $conn->prepare($sql);
+
+$searchParam = '%' . $search . '%';
+if ($category) {
+    $stmt->bind_param("ss", $searchParam, $category);
+} else {
+    $stmt->bind_param("s", $searchParam);
+}
+
+$stmt->execute();
+$result = $stmt->get_result();
 ?>
 
 <!DOCTYPE html>
@@ -64,6 +93,17 @@ $result = $conn->query($sql);
         h1 {
             text-align: center;
             color: #333;
+        }
+        .filters {
+            margin-bottom: 20px;
+        }
+        .filters form {
+            display: inline;
+            margin-right: 10px;
+        }
+        .filters input, .filters select {
+            padding: 5px;
+            margin-right: 5px;
         }
         table {
             width: 100%;
@@ -104,6 +144,25 @@ $result = $conn->query($sql);
 <body>
     <div class="container">
         <h1>Components List</h1>
+        <div class="filters">
+            <form action="components.php" method="get">
+                <input type="text" name="search" placeholder="Search..." value="<?php echo htmlspecialchars($search); ?>">
+                <select id="category" name="category">
+                    <option value="">All Categories</option>
+                    <option value="Материнская плата" <?php echo $category == 'Материнская плата' ? 'selected' : ''; ?>>Материнская плата</option>
+                    <option value="Процессор" <?php echo $category == 'Процессор' ? 'selected' : ''; ?>>Процессор</option>
+                    <option value="Оперативная память" <?php echo $category == 'Оперативная память' ? 'selected' : ''; ?>>Оперативная память</option>
+                    <option value="Видеокарта" <?php echo $category == 'Видеокарта' ? 'selected' : ''; ?>>Видеокарта</option>
+                    <option value="Блок питания" <?php echo $category == 'Блок питания' ? 'selected' : ''; ?>>Блок питания</option>
+                    <option value="SSD диск" <?php echo $category == 'SSD диск' ? 'selected' : ''; ?>>SSD диск</option>
+                    <option value="HDD диск" <?php echo $category == 'HDD диск' ? 'selected' : ''; ?>>HDD диск</option>
+                    <option value="Корпус" <?php echo $category == 'Корпус' ? 'selected' : ''; ?>>Корпус</option>
+                    <option value="Куллер (процессор)" <?php echo $category == 'Куллер (процессор)' ? 'selected' : ''; ?>>Куллер (процессор)</option>
+                    <option value="Куллер (доп)" <?php echo $category == 'Куллер (доп)' ? 'selected' : ''; ?>>Куллер (доп)</option>
+                </select>
+                <button type="submit">Apply</button>
+            </form>
+        </div>
         <table>
             <thead>
                 <tr>
