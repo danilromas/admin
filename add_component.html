@@ -5,53 +5,88 @@
     <title>Add Component</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
         }
-        form {
-            max-width: 300px;
-            margin: 0 auto;
-            padding: 1em;
-            border: 1px solid #ccc;
-            border-radius: 1em;
+        .form-container {
+            background: white;
+            padding: 2em;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 100%;
+        }
+        h2 {
+            text-align: center;
+            color: #333;
         }
         label {
-            margin-top: 1em;
+            display: block;
+            margin: 1em 0 0.5em;
+            color: #333;
+            font-weight: bold;
+        }
+        input[type="text"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 0.7em;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus {
+            border-color: #007BFF;
+            outline: none;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
         }
         input[type="submit"] {
-            margin-top: 1em;
+            width: 100%;
             padding: 0.7em;
             border: none;
-            border-radius: 0.5em;
-            background: #007BFF;
+            border-radius: 5px;
+            background-color: #007BFF;
             color: white;
             font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 1em;
+        }
+        input[type="submit"]:hover {
+            background-color: #0056b3;
         }
     </style>
 </head>
 <body>
-    <h2>Add Component</h2>
-    <form action="add_component.php" method="POST">
-        <label for="name">Component Name:</label>
-        <input type="text" id="name" name="name" required>
-        <br>
-        <label for="price">Price:</label>
-        <input type="number" id="price" name="price" step="0.01" required>
-        <br>
-        <label for="category">Category:</label>
-        <select id="category" name="category" required>
-            <option value="Материнская плата">Материнская плата</option>
-            <option value="Процессор">Процессор</option>
-            <option value="Оперативная память">Оперативная память</option>
-            <option value="Видеокарта">Видеокарта</option>
-            <option value="Блок питания">Блок питания</option>
-            <option value="SSD диск">SSD диск</option>
-            <option value="HDD диск">HDD диск</option>
-            <option value="Корпус">Корпус</option>
-            <option value="Куллер (процессор)">Куллер (процессор)</option>
-            <option value="Куллер (доп)">Куллер (доп)</option>
-        </select>
-        <br>
-        <input type="submit" value="Add Component">
-    </form>
+    <div class="form-container">
+        <h2>Add Component</h2>
+        <form action="add_component.php" method="POST">
+            <label for="name">Component Name:</label>
+            <input type="text" id="name" name="name" required>
+            <label for="price">Price:</label>
+            <input type="number" id="price" name="price" step="0.01" required>
+            <label for="category">Category:</label>
+            <select id="category" name="category" required>
+                <option value="Материнская плата">Материнская плата</option>
+                <option value="Процессор">Процессор</option>
+                <option value="Оперативная память">Оперативная память</option>
+                <option value="Видеокарта">Видеокарта</option>
+                <option value="Блок питания">Блок питания</option>
+                <option value="SSD диск">SSD диск</option>
+                <option value="HDD диск">HDD диск</option>
+                <option value="Корпус">Корпус</option>
+                <option value="Куллер (процессор)">Куллер (процессор)</option>
+                <option value="Куллер (доп)">Куллер (доп)</option>
+            </select>
+            <input type="submit" value="Add Component">
+        </form>
+    </div>
 </body>
 </html>
