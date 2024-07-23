@@ -186,6 +186,11 @@
         echo '<button type="submit" class="delete-button">Delete</button>';
         echo '</form>';
         echo '</div>';
+        echo '<form action="sell_computer.php" method="post">';
+        echo '<input type="hidden" name="id" value="' . $row['id'] . '">';
+        echo '<button type="submit" class="sell_computer">Sell</button>';
+        echo '</form>';
+        echo '</div>';
         
         echo '</div>';
     }
