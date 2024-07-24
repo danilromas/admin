@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Sharp" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
     <title>Отчет о продажах</title>
     <style>
         body {
@@ -31,6 +30,7 @@
 
         main {
             text-align: center;
+            align-items: center;
         }
 
         h1 {
@@ -64,9 +64,8 @@
             margin: 5px 0 20px;
             border-radius: 6px;
             border: 1px solid #ccc;
-            font-size: 16px;
             width: 100%;
-            max-width: 300px;
+            max-width: 400px; /* Увеличенный размер инпута */
             box-sizing: border-box;
             transition: border-color 0.3s ease, box-shadow 0.3s ease;
         }
@@ -123,6 +122,26 @@
         table tbody tr:hover {
             background-color: #f1f1f1;
         }
+
+        .total-row {
+            font-weight: bold;
+            background-color: #f0f0f0;
+        }
+
+        .download-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .download-btn:hover {
+            background-color: #0056b3;
+        }
     </style>
 </head>
 
@@ -135,7 +154,7 @@
                 <input type="date" id="start-date" name="start-date" required>
                 <label for="end-date">Конечная дата:</label>
                 <input type="date" id="end-date" name="end-date" required>
-                <input type="submit" value="Сформировать отчет">
+                <input type="submit" value="Сформировать">
             </form>
 
             <div class="report-section">
