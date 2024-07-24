@@ -6,61 +6,49 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Sharp" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    <title>Responsive Dashboard Design #1 | AsmrProg</title>
+    <title>Responsive Dashboard Design</title>
 </head>
 
 <body>
-
     <div class="container">
         <!-- Sidebar Section -->
         <aside>
             <div class="toggle">
                 <div class="logo">
                     <img src="images/logo.png">
-                    <h2>Asmr<span class="danger">Prog</span></h2>
+                    <h2>Tech<span class="danger">Power</span></h2>
                 </div>
                 <div class="close" id="close-btn">
-                    <span class="material-icons-sharp">
-                        close
-                    </span>
+                    <span class="material-icons-sharp">close</span>
                 </div>
             </div>
-
             <div class="sidebar">
                 <a href="add_component.html">
-                    <span class="material-icons-sharp">
-                        dashboard
-                    </span>
+                    <span class="material-icons-sharp">dashboard</span>
                     <h3>Add Components</h3>
                 </a>
                 <a href="components.php">
-                    <span class="material-icons-sharp">
-                        person_outline
-                    </span>
+                    <span class="material-icons-sharp">person_outline</span>
                     <h3>Components</h3>
                 </a>
                 <a href="add_computer1.php">
-                    <span class="material-icons-sharp">
-                        person_outline
-                    </span>
+                    <span class="material-icons-sharp">person_outline</span>
                     <h3>Add computer</h3>
                 </a>
                 <a href="computers.php">
-                    <span class="material-icons-sharp">
-                        receipt_long
-                    </span>
+                    <span class="material-icons-sharp">receipt_long</span>
                     <h3>Computers</h3>
                 </a>
                 <a href="orders.php">
-                    <span class="material-icons-sharp">
-                        mail_outline
-                    </span>
-                    <h3>Tickets</h3>
+                    <span class="material-icons-sharp">mail_outline</span>
+                    <h3>Orders</h3>
+                </a>
+                <a href="report.html">
+                    <span class="material-icons-sharp">mail_outline</span>
+                    <h3>Report</h3>
                 </a>
                 <a href="#">
-                    <span class="material-icons-sharp">
-                        logout
-                    </span>
+                    <span class="material-icons-sharp">logout</span>
                     <h3>Logout</h3>
                 </a>
             </div>
@@ -76,14 +64,14 @@
                     <div class="status">
                         <div class="info">
                             <h3>Total Sales</h3>
-                            <h1>$65,024</h1>
+                            <h1 id="total-sales">$0</h1>
                         </div>
                         <div class="progresss">
                             <svg>
-                                <circle cx="38" cy="38" r="36"></circle>
+                                <circle cx="38" cy="38" r="36" id="sales-circle"></circle>
                             </svg>
                             <div class="percentage">
-                                <p>+81%</p>
+                                <p id="sales-percentage">0%</p>
                             </div>
                         </div>
                     </div>
@@ -92,14 +80,14 @@
                     <div class="status">
                         <div class="info">
                             <h3>Site Visit</h3>
-                            <h1>24,981</h1>
+                            <h1 id="total-visits">0</h1>
                         </div>
                         <div class="progresss">
                             <svg>
-                                <circle cx="38" cy="38" r="36"></circle>
+                                <circle cx="38" cy="38" r="36" id="visits-circle"></circle>
                             </svg>
                             <div class="percentage">
-                                <p>-48%</p>
+                                <p id="visits-percentage">0%</p>
                             </div>
                         </div>
                     </div>
@@ -108,48 +96,46 @@
                     <div class="status">
                         <div class="info">
                             <h3>Searches</h3>
-                            <h1>14,147</h1>
+                            <h1 id="total-searches">0</h1>
                         </div>
                         <div class="progresss">
                             <svg>
-                                <circle cx="38" cy="38" r="36"></circle>
+                                <circle cx="38" cy="38" r="36" id="searches-circle"></circle>
                             </svg>
                             <div class="percentage">
-                                <p>+21%</p>
+                                <p id="searches-percentage">0%</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    fetch('get_analytics.php')
+                        .then(response => response.json())
+                        .then(data => {
+                            // Update total sales
+                            document.getElementById('total-sales').innerText = `$${data.totalSales}`;
+                            document.getElementById('sales-percentage').innerText = `${data.salesPercentageChange}%`;
+                            
+                            // Update total visits
+                            document.getElementById('total-visits').innerText = data.totalVisits;
+                            document.getElementById('visits-percentage').innerText = `${data.visitsPercentageChange}%`;
+                            
+                            // Update total searches
+                            document.getElementById('total-searches').innerText = data.totalSearches;
+                            document.getElementById('searches-percentage').innerText = `${data.searchesPercentageChange}%`;
+                            
+                            // Update progress circles (dummy example with fixed percentages)
+                            document.getElementById('sales-circle').style.strokeDasharray = `${data.salesPercentageChange * 2.28}, 228`;
+                            document.getElementById('visits-circle').style.strokeDasharray = `${Math.abs(data.visitsPercentageChange) * 2.28}, 228`;
+                            document.getElementById('searches-circle').style.strokeDasharray = `${data.searchesPercentageChange * 2.28}, 228`;
+                        })
+                        .catch(error => console.error('Error fetching analytics data:', error));
+                });
+            </script>
+        
             <!-- End of Analyses -->
-
-            <!-- New Users Section -->
-            <!-- <div class="new-users">
-                <h2>New Users</h2>
-                <div class="user-list">
-                    <div class="user">
-                        <img src="images/profile-2.jpg">
-                        <h2>Jack</h2>
-                        <p>54 Min Ago</p>
-                    </div>
-                    <div class="user">
-                        <img src="images/profile-3.jpg">
-                        <h2>Amir</h2>
-                        <p>3 Hours Ago</p>
-                    </div>
-                    <div class="user">
-                        <img src="images/profile-4.jpg">
-                        <h2>Ember</h2>
-                        <p>6 Hours Ago</p>
-                    </div>
-                    <div class="user">
-                        <img src="images/plus.png">
-                        <h2>More</h2>
-                        <p>New User</p>
-                    </div>
-                </div>
-            </div> -->
-            <!-- End of New Users Section -->
 
             <!-- Recent Orders Table -->
             <div class="recent-orders">
@@ -164,11 +150,21 @@
                             <th></th>
                         </tr>
                     </thead>
-                    <tbody></tbody>
+                    <tbody id="orders-table-body">
+                        <!-- Orders will be populated here by JavaScript -->
+                    </tbody>
                 </table>
                 <a href="#">Show All</a>
             </div>
             <!-- End of Recent Orders -->
+
+            <!-- Sales Charts Section -->
+            <div class="charts">
+                <h2>Sales Charts</h2>
+                <canvas id="salesChart"></canvas>
+                <canvas id="profitChart"></canvas>
+            </div>
+            <!-- End of Sales Charts Section -->
 
         </main>
         <!-- End of Main Content -->
@@ -177,19 +173,12 @@
         <div class="right-section">
             <div class="nav">
                 <button id="menu-btn">
-                    <span class="material-icons-sharp">
-                        menu
-                    </span>
+                    <span class="material-icons-sharp">menu</span>
                 </button>
                 <div class="dark-mode">
-                    <span class="material-icons-sharp active">
-                        light_mode
-                    </span>
-                    <span class="material-icons-sharp">
-                        dark_mode
-                    </span>
+                    <span class="material-icons-sharp active">light_mode</span>
+                    <span class="material-icons-sharp">dark_mode</span>
                 </div>
-
                 <div class="profile">
                     <div class="info">
                         <p>Hey, <b>Reza</b></p>
@@ -199,80 +188,11 @@
                         <img src="images/profile-1.jpg">
                     </div>
                 </div>
-
             </div>
-            <!-- End of Nav -->
-
-            <div class="user-profile">
-                <div class="logo">
-                    <img src="images/logo.png">
-                    <h2>AsmrProg</h2>
-                    <p>Fullstack Web Developer</p>
-                </div>
-            </div>
-
-            <!-- <div class="reminders">
-                <div class="header">
-                    <h2>Reminders</h2>
-                    <span class="material-icons-sharp">
-                        notifications_none
-                    </span>
-                </div>
-
-                <div class="notification">
-                    <div class="icon">
-                        <span class="material-icons-sharp">
-                            volume_up
-                        </span>
-                    </div>
-                    <div class="content">
-                        <div class="info">
-                            <h3>Workshop</h3>
-                            <small class="text_muted">
-                                08:00 AM - 12:00 PM
-                            </small>
-                        </div>
-                        <span class="material-icons-sharp">
-                            more_vert
-                        </span>
-                    </div>
-                </div>
-
-                <div class="notification deactive">
-                    <div class="icon">
-                        <span class="material-icons-sharp">
-                            edit
-                        </span>
-                    </div>
-                    <div class="content">
-                        <div class="info">
-                            <h3>Workshop</h3>
-                            <small class="text_muted">
-                                08:00 AM - 12:00 PM
-                            </small>
-                        </div>
-                        <span class="material-icons-sharp">
-                            more_vert
-                        </span>
-                    </div>
-                </div>
-
-                <div class="notification add-reminder">
-                    <div>
-                        <span class="material-icons-sharp">
-                            add
-                        </span>
-                        <h3>Add Reminder</h3>
-                    </div>
-                </div>
-
-            </div> -->
-
         </div>
-
-
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="orders.js"></script>
     <script src="index.js"></script>
 </body>

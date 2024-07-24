@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Sharp" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <title>Отчет о продажах</title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f0f4f8;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            width: 90%;
+            max-width: 1000px;
+            margin: 20px;
+        }
+
+        main {
+            text-align: center;
+        }
+
+        h1 {
+            color: #007BFF;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        form {
+            margin-bottom: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        label {
+            margin: 10px 0 5px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input[type="date"],
+        input[type="submit"] {
+            padding: 12px 15px;
+            margin: 5px 0 20px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+            width: 100%;
+            max-width: 300px;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        input[type="date"]:focus,
+        input[type="submit"]:focus {
+            border-color: #007BFF;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+            outline: none;
+        }
+
+        input[type="submit"] {
+            background-color: #007BFF;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+
+        .report-section {
+            text-align: left;
+            margin-top: 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        table th,
+        table td {
+            padding: 15px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        table th {
+            background-color: #007BFF;
+            color: #ffffff;
+            font-weight: 500;
+        }
+
+        table tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        table tbody tr:hover {
+            background-color: #f1f1f1;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <main>
+            <h1>Формирование отчета о продажах</h1>
+            <form id="report-form">
+                <label for="start-date">Начальная дата:</label>
+                <input type="date" id="start-date" name="start-date" required>
+                <label for="end-date">Конечная дата:</label>
+                <input type="date" id="end-date" name="end-date" required>
+                <input type="submit" value="Сформировать отчет">
+            </form>
+
+            <div class="report-section">
+                <h2>Отчет о продажах</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Дата</th>
+                            <th>Город</th>
+                            <th>Сумма продажи</th>
+                            <th>Плата менеджеру</th>
+                            <th>Плата заместителю</th>
+                        </tr>
+                    </thead>
+                    <tbody id="report-table-body">
+                        <!-- Отчеты будут подгружаться сюда -->
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <script src="report.js"></script>
+</body>
+
+</html>
