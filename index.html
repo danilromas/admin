@@ -7,190 +7,225 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Sharp" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <title>Responsive Dashboard Design</title>
+    <style>
+        #password-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        #main-content {
+            display: none;
+        }
+    </style>
 </head>
 
 <body>
-    <div class="container">
-        <!-- Sidebar Section -->
-        <aside>
-            <div class="toggle">
-                <div class="logo">
-                    <img src="images/logo.png">
-                    <h2>Tech<span class="danger">Power</span></h2>
-                </div>
-                <div class="close" id="close-btn">
-                    <span class="material-icons-sharp">close</span>
-                </div>
-            </div>
-            <div class="sidebar">
-                <a href="add_component.html">
-                    <span class="material-icons-sharp">dashboard</span>
-                    <h3>Add Components</h3>
-                </a>
-                <a href="components.php">
-                    <span class="material-icons-sharp">person_outline</span>
-                    <h3>Components</h3>
-                </a>
-                <a href="add_computer1.php">
-                    <span class="material-icons-sharp">person_outline</span>
-                    <h3>Add computer</h3>
-                </a>
-                <a href="computers.php">
-                    <span class="material-icons-sharp">receipt_long</span>
-                    <h3>Computers</h3>
-                </a>
-                <a href="orders.php">
-                    <span class="material-icons-sharp">mail_outline</span>
-                    <h3>Orders</h3>
-                </a>
-                <a href="report.html">
-                    <span class="material-icons-sharp">mail_outline</span>
-                    <h3>Report</h3>
-                </a>
-                <a href="#">
-                    <span class="material-icons-sharp">logout</span>
-                    <h3>Logout</h3>
-                </a>
-            </div>
-        </aside>
-        <!-- End of Sidebar Section -->
+    <div id="password-container">
+        <h2>Enter Password</h2>
+        <input type="password" id="password-input" placeholder="Password">
+        <button id="submit-password">Submit</button>
+        <p id="error-message" style="color: red; display: none;">Incorrect password, try again.</p>
+    </div>
 
-        <!-- Main Content -->
-        <main>
-            <h1>Analytics</h1>
-            <!-- Analyses -->
-            <div class="analyse">
-                <div class="sales">
-                    <div class="status">
-                        <div class="info">
-                            <h3>Total Sales</h3>
-                            <h1 id="total-sales">$0</h1>
+    <div id="main-content">
+        <div class="container">
+            <!-- Sidebar Section -->
+            <aside>
+                <div class="toggle">
+                    <div class="logo">
+                        <img src="images/logo.png">
+                        <h2>Tech<span class="danger">Power</span></h2>
+                    </div>
+                    <div class="close" id="close-btn">
+                        <span class="material-icons-sharp">close</span>
+                    </div>
+                </div>
+                <div class="sidebar">
+                    <a href="add_component.html">
+                        <span class="material-icons-sharp">dashboard</span>
+                        <h3>Add Components</h3>
+                    </a>
+                    <a href="components.php">
+                        <span class="material-icons-sharp">person_outline</span>
+                        <h3>Components</h3>
+                    </a>
+                    <a href="add_computer1.php">
+                        <span class="material-icons-sharp">person_outline</span>
+                        <h3>Add computer</h3>
+                    </a>
+                    <a href="computers.php">
+                        <span class="material-icons-sharp">receipt_long</span>
+                        <h3>Computers</h3>
+                    </a>
+                    <a href="orders.php">
+                        <span class="material-icons-sharp">mail_outline</span>
+                        <h3>Orders</h3>
+                    </a>
+                    <a href="report.html">
+                        <span class="material-icons-sharp">mail_outline</span>
+                        <h3>Report</h3>
+                    </a>
+                    <a href="#">
+                        <span class="material-icons-sharp">logout</span>
+                        <h3>Logout</h3>
+                    </a>
+                </div>
+            </aside>
+            <!-- End of Sidebar Section -->
+
+            <!-- Main Content -->
+            <main>
+                <h1>Analytics</h1>
+                <!-- Analyses -->
+                <div class="analyse">
+                    <div class="sales">
+                        <div class="status">
+                            <div class="info">
+                                <h3>Total Sales</h3>
+                                <h1 id="total-sales">$0</h1>
+                            </div>
+                            <div class="progresss">
+                                <svg>
+                                    <circle cx="38" cy="38" r="36" id="sales-circle"></circle>
+                                </svg>
+                                <div class="percentage">
+                                    <p id="sales-percentage">0%</p>
+                                </div>
+                            </div>
                         </div>
-                        <div class="progresss">
-                            <svg>
-                                <circle cx="38" cy="38" r="36" id="sales-circle"></circle>
-                            </svg>
-                            <div class="percentage">
-                                <p id="sales-percentage">0%</p>
+                    </div>
+                    <div class="visits">
+                        <div class="status">
+                            <div class="info">
+                                <h3>Site Visit</h3>
+                                <h1 id="total-visits">0</h1>
+                            </div>
+                            <div class="progresss">
+                                <svg>
+                                    <circle cx="38" cy="38" r="36" id="visits-circle"></circle>
+                                </svg>
+                                <div class="percentage">
+                                    <p id="visits-percentage">0%</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="searches">
+                        <div class="status">
+                            <div class="info">
+                                <h3>Searches</h3>
+                                <h1 id="total-searches">0</h1>
+                            </div>
+                            <div class="progresss">
+                                <svg>
+                                    <circle cx="38" cy="38" r="36" id="searches-circle"></circle>
+                                </svg>
+                                <div class="percentage">
+                                    <p id="searches-percentage">0%</p>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="visits">
-                    <div class="status">
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        fetch('get_analytics.php')
+                            .then(response => response.json())
+                            .then(data => {
+                                // Update total sales
+                                document.getElementById('total-sales').innerText = `$${data.totalSales}`;
+                                document.getElementById('sales-percentage').innerText = `${data.salesPercentageChange}%`;
+                                
+                                // Update total visits
+                                document.getElementById('total-visits').innerText = data.totalVisits;
+                                document.getElementById('visits-percentage').innerText = `${data.visitsPercentageChange}%`;
+                                
+                                // Update total searches
+                                document.getElementById('total-searches').innerText = data.totalSearches;
+                                document.getElementById('searches-percentage').innerText = `${data.searchesPercentageChange}%`;
+                                
+                                // Update progress circles (dummy example with fixed percentages)
+                                document.getElementById('sales-circle').style.strokeDasharray = `${data.salesPercentageChange * 2.28}, 228`;
+                                document.getElementById('visits-circle').style.strokeDasharray = `${Math.abs(data.visitsPercentageChange) * 2.28}, 228`;
+                                document.getElementById('searches-circle').style.strokeDasharray = `${data.searchesPercentageChange * 2.28}, 228`;
+                            })
+                            .catch(error => console.error('Error fetching analytics data:', error));
+                    });
+                </script>
+            
+                <!-- End of Analyses -->
+
+                <!-- Recent Orders Table -->
+                <div class="recent-orders">
+                    <h2>Recent Orders</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Course Name</th>
+                                <th>Course Number</th>
+                                <th>Payment</th>
+                                <th>Status</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="orders-table-body">
+                            <!-- Orders will be populated here by JavaScript -->
+                        </tbody>
+                    </table>
+                    <a href="#">Show All</a>
+                </div>
+                <!-- End of Recent Orders -->
+
+                <!-- Sales Charts Section -->
+                <div class="charts">
+                    <h2>Sales Charts</h2>
+                    <canvas id="salesChart"></canvas>
+                    <canvas id="profitChart"></canvas>
+                </div>
+                <!-- End of Sales Charts Section -->
+
+            </main>
+            <!-- End of Main Content -->
+
+            <!-- Right Section -->
+            <div class="right-section">
+                <div class="nav">
+                    <button id="menu-btn">
+                        <span class="material-icons-sharp">menu</span>
+                    </button>
+                    <div class="dark-mode">
+                        <span class="material-icons-sharp active">light_mode</span>
+                        <span class="material-icons-sharp">dark_mode</span>
+                    </div>
+                    <div class="profile">
                         <div class="info">
-                            <h3>Site Visit</h3>
-                            <h1 id="total-visits">0</h1>
+                            <p>Hey, <b>Reza</b></p>
+                            <small class="text-muted">Admin</small>
                         </div>
-                        <div class="progresss">
-                            <svg>
-                                <circle cx="38" cy="38" r="36" id="visits-circle"></circle>
-                            </svg>
-                            <div class="percentage">
-                                <p id="visits-percentage">0%</p>
-                            </div>
+                        <div class="profile-photo">
+                            <img src="images/profile-1.jpg">
                         </div>
-                    </div>
-                </div>
-                <div class="searches">
-                    <div class="status">
-                        <div class="info">
-                            <h3>Searches</h3>
-                            <h1 id="total-searches">0</h1>
-                        </div>
-                        <div class="progresss">
-                            <svg>
-                                <circle cx="38" cy="38" r="36" id="searches-circle"></circle>
-                            </svg>
-                            <div class="percentage">
-                                <p id="searches-percentage">0%</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <script>
-                document.addEventListener('DOMContentLoaded', function() {
-                    fetch('get_analytics.php')
-                        .then(response => response.json())
-                        .then(data => {
-                            // Update total sales
-                            document.getElementById('total-sales').innerText = `$${data.totalSales}`;
-                            document.getElementById('sales-percentage').innerText = `${data.salesPercentageChange}%`;
-                            
-                            // Update total visits
-                            document.getElementById('total-visits').innerText = data.totalVisits;
-                            document.getElementById('visits-percentage').innerText = `${data.visitsPercentageChange}%`;
-                            
-                            // Update total searches
-                            document.getElementById('total-searches').innerText = data.totalSearches;
-                            document.getElementById('searches-percentage').innerText = `${data.searchesPercentageChange}%`;
-                            
-                            // Update progress circles (dummy example with fixed percentages)
-                            document.getElementById('sales-circle').style.strokeDasharray = `${data.salesPercentageChange * 2.28}, 228`;
-                            document.getElementById('visits-circle').style.strokeDasharray = `${Math.abs(data.visitsPercentageChange) * 2.28}, 228`;
-                            document.getElementById('searches-circle').style.strokeDasharray = `${data.searchesPercentageChange * 2.28}, 228`;
-                        })
-                        .catch(error => console.error('Error fetching analytics data:', error));
-                });
-            </script>
-        
-            <!-- End of Analyses -->
-
-            <!-- Recent Orders Table -->
-            <div class="recent-orders">
-                <h2>Recent Orders</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Course Name</th>
-                            <th>Course Number</th>
-                            <th>Payment</th>
-                            <th>Status</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody id="orders-table-body">
-                        <!-- Orders will be populated here by JavaScript -->
-                    </tbody>
-                </table>
-                <a href="#">Show All</a>
-            </div>
-            <!-- End of Recent Orders -->
-
-            <!-- Sales Charts Section -->
-            <div class="charts">
-                <h2>Sales Charts</h2>
-                <canvas id="salesChart"></canvas>
-                <canvas id="profitChart"></canvas>
-            </div>
-            <!-- End of Sales Charts Section -->
-
-        </main>
-        <!-- End of Main Content -->
-
-        <!-- Right Section -->
-        <div class="right-section">
-            <div class="nav">
-                <button id="menu-btn">
-                    <span class="material-icons-sharp">menu</span>
-                </button>
-                <div class="dark-mode">
-                    <span class="material-icons-sharp active">light_mode</span>
-                    <span class="material-icons-sharp">dark_mode</span>
-                </div>
-                <div class="profile">
-                    <div class="info">
-                        <p>Hey, <b>Reza</b></p>
-                        <small class="text-muted">Admin</small>
-                    </div>
-                    <div class="profile-photo">
-                        <img src="images/profile-1.jpg">
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <script>
+        document.getElementById('submit-password').addEventListener('click', function() {
+            const password = document.getElementById('password-input').value;
+            const correctPassword = 'XiaomiRedmi8';  // Replace with your actual password
+            
+            if (password === correctPassword) {
+                document.getElementById('password-container').style.display = 'none';
+                document.getElementById('main-content').style.display = 'block';
+            } else {
+                document.getElementById('error-message').style.display = 'block';
+            }
+        });
+    </script>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="orders.js"></script>

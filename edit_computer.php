@@ -4,35 +4,19 @@ $username = "root";
 $password = "";
 $dbname = "computer_sales";
 
+// Создание соединения
 $conn = new mysqli($servername, $username, $password, $dbname);
 
+// Проверка соединения
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-function generateOptions($category, $selectedId = null) {
-    global $conn;
+$computer = [];
 
-    $sql = "SELECT id, name FROM components WHERE category = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("s", $category);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    $options = "";
-    while ($row = $result->fetch_assoc()) {
-        $selected = $row['id'] == $selectedId ? "selected" : "";
-        $options .= '<option value="' . $row['id'] . '" ' . $selected . '>' . $row['name'] . '</option>';
-    }
-
-    $stmt->close();
-
-    return $options;
-}
-
-$computer = null;
+// Получение данных о компьютере, если запрос GET был выполнен
 if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['id'])) {
-    $id = $_GET['id'];
+    $id = intval($_GET['id']);
 
     $sql = "SELECT * FROM computers WHERE id = ?";
     $stmt = $conn->prepare($sql);
@@ -42,11 +26,46 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['id'])) {
     $computer = $result->fetch_assoc();
 
     $stmt->close();
+} else {
+    die("Invalid request.");
 }
 
-$conn->close();
-?>
+function generateOptions($conn, $type, $selectedId) {
+    $tableMap = [
+        "Материнская плата" => "motherboards",
+        "Процессор" => "processors",
+        "Оперативная память" => "ram",
+        "Видеокарта" => "gpus",
+        "Блок питания" => "psus",
+        "SSD диск" => "ssds",
+        "HDD диск" => "hdds",
+        "Корпус" => "cases",
+        "Куллер (процессор)" => "cpu_coolers",
+        "Куллер (доп)" => "extra_coolers"
+    ];
 
+    if (!isset($tableMap[$type])) {
+        return ''; // Неверный тип компонента
+    }
+
+    $table = $tableMap[$type];
+
+    $sql = "SELECT id, name FROM $table";
+    $result = $conn->query($sql);
+
+    if (!$result) {
+        return ''; // Ошибка выполнения запроса
+    }
+
+    $html = '';
+    while ($row = $result->fetch_assoc()) {
+        $selected = ($row['id'] == $selectedId) ? ' selected' : '';
+        $html .= "<option value=\"{$row['id']}\"$selected>{$row['name']}</option>";
+    }
+
+    return $html;
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -92,59 +111,59 @@ $conn->close();
 <body>
     <h2>Edit Computer Build</h2>
     <form action="update_computer.php" method="POST">
-        <input type="hidden" name="id" value="<?php echo $computer['id']; ?>">
+        <input type="hidden" name="id" value="<?php echo htmlspecialchars($computer['id']); ?>">
 
         <label for="name">Build Name:</label>
         <input type="text" id="name" name="name" value="<?php echo htmlspecialchars($computer['name']); ?>" required>
         
         <label for="motherboard">Motherboard:</label>
         <select id="motherboard" name="motherboard" required>
-            <?php echo generateOptions("Материнская плата", $computer['motherboard_id']); ?>
+            <?php echo generateOptions($conn, "Материнская плата", $computer['motherboard_id']); ?>
         </select>
         
         <label for="processor">Processor:</label>
         <select id="processor" name="processor" required>
-            <?php echo generateOptions("Процессор", $computer['processor_id']); ?>
+            <?php echo generateOptions($conn, "Процессор", $computer['processor_id']); ?>
         </select>
         
         <label for="ram">RAM:</label>
         <select id="ram" name="ram" required>
-            <?php echo generateOptions("Оперативная память", $computer['ram_id']); ?>
+            <?php echo generateOptions($conn, "Оперативная память", $computer['ram_id']); ?>
         </select>
         
         <label for="gpu">Graphics Card:</label>
         <select id="gpu" name="gpu" required>
-            <?php echo generateOptions("Видеокарта", $computer['gpu_id']); ?>
+            <?php echo generateOptions($conn, "Видеокарта", $computer['gpu_id']); ?>
         </select>
         
         <label for="psu">Power Supply:</label>
         <select id="psu" name="psu" required>
-            <?php echo generateOptions("Блок питания", $computer['psu_id']); ?>
+            <?php echo generateOptions($conn, "Блок питания", $computer['psu_id']); ?>
         </select>
         
         <label for="ssd">SSD:</label>
         <select id="ssd" name="ssd" required>
-            <?php echo generateOptions("SSD диск", $computer['ssd_id']); ?>
+            <?php echo generateOptions($conn, "SSD диск", $computer['ssd_id']); ?>
         </select>
         
         <label for="hdd">HDD:</label>
         <select id="hdd" name="hdd" required>
-            <?php echo generateOptions("HDD диск", $computer['hdd_id']); ?>
+            <?php echo generateOptions($conn, "HDD диск", $computer['hdd_id']); ?>
         </select>
         
         <label for="case">Case:</label>
         <select id="case" name="case" required>
-            <?php echo generateOptions("Корпус", $computer['case_id']); ?>
+            <?php echo generateOptions($conn, "Корпус", $computer['case_id']); ?>
         </select>
         
         <label for="cpu_cooler">CPU Cooler:</label>
         <select id="cpu_cooler" name="cpu_cooler" required>
-            <?php echo generateOptions("Куллер (процессор)", $computer['cpu_cooler_id']); ?>
+            <?php echo generateOptions($conn, "Куллер (процессор)", $computer['cpu_cooler_id']); ?>
         </select>
         
         <label for="extra_cooler">Extra Cooler:</label>
         <select id="extra_cooler" name="extra_cooler" required>
-            <?php echo generateOptions("Куллер (доп)", $computer['extra_cooler_id']); ?>
+            <?php echo generateOptions($conn, "Куллер (доп)", $computer['extra_cooler_id']); ?>
         </select>
         
         <label for="base_price">Base Price:</label>

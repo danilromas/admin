@@ -29,10 +29,34 @@ if (isset($_POST['submit'])) {
     $name = $_POST['name'];
     $price = floatval($_POST['price']);
     $category = $_POST['category'];
+    $quantity = intval($_POST['quantity']);
+    
+    // Обработка загрузки фото
+    $photo = $_FILES['photo'];
+    $photoPath = null;
 
-    $update_sql = "UPDATE components SET name = ?, price = ?, category = ? WHERE id = ?";
-    $update_stmt = $conn->prepare($update_sql);
-    $update_stmt->bind_param("sdsi", $name, $price, $category, $id);
+    if ($photo['error'] === UPLOAD_ERR_OK) {
+        $uploadDir = 'uploads/';
+        $photoPath = $uploadDir . basename($photo['name']);
+        if (!move_uploaded_file($photo['tmp_name'], $photoPath)) {
+            echo "Error uploading file.";
+            exit();
+        }
+    } elseif ($photo['error'] !== UPLOAD_ERR_NO_FILE) {
+        echo "Error uploading file.";
+        exit();
+    }
+
+    // Подготовка SQL-запроса
+    if ($photoPath) {
+        $update_sql = "UPDATE components SET name = ?, price = ?, category = ?, quantity = ?, photo = ? WHERE id = ?";
+        $update_stmt = $conn->prepare($update_sql);
+        $update_stmt->bind_param("sdsisi", $name, $price, $category, $quantity, $photoPath, $id);
+    } else {
+        $update_sql = "UPDATE components SET name = ?, price = ?, category = ?, quantity = ? WHERE id = ?";
+        $update_stmt = $conn->prepare($update_sql);
+        $update_stmt->bind_param("sdsii", $name, $price, $category, $quantity, $id);
+    }
 
     if ($update_stmt->execute()) {
         echo "Component updated successfully.";
@@ -57,6 +81,8 @@ if (isset($_GET['id'])) {
 } else {
     die("Invalid request.");
 }
+
+$conn->close();
 ?>
 
 <!DOCTYPE html>
@@ -90,7 +116,7 @@ if (isset($_GET['id'])) {
             margin-bottom: 5px;
             font-weight: bold;
         }
-        input[type="text"], input[type="number"] {
+        input[type="text"], input[type="number"], input[type="file"] {
             margin-bottom: 15px;
             padding: 10px;
             font-size: 16px;
@@ -109,12 +135,19 @@ if (isset($_GET['id'])) {
         button:hover {
             background-color: #45a049;
         }
+        .current-photo {
+            margin-bottom: 15px;
+        }
+        .current-photo img {
+            max-width: 100%;
+            height: auto;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Edit Component</h1>
-        <form method="POST" action="edit_component.php">
+        <form method="POST" action="edit_component.php" enctype="multipart/form-data">
             <input type="hidden" name="id" value="<?php echo htmlspecialchars($component['id']); ?>">
             <label for="name">Name</label>
             <input type="text" id="name" name="name" value="<?php echo htmlspecialchars($component['name']); ?>" required>
@@ -122,6 +155,18 @@ if (isset($_GET['id'])) {
             <input type="number" id="price" name="price" step="0.01" value="<?php echo htmlspecialchars($component['price']); ?>" required>
             <label for="category">Category</label>
             <input type="text" id="category" name="category" value="<?php echo htmlspecialchars($component['category']); ?>" required>
+            <label for="quantity">Quantity</label>
+            <input type="number" id="quantity" name="quantity" value="<?php echo htmlspecialchars($component['quantity']); ?>" required>
+            <div class="current-photo">
+                <label>Current Photo:</label>
+                <?php if (!empty($component['photo'])): ?>
+                    <img src="<?php echo htmlspecialchars($component['photo']); ?>" alt="Current Photo">
+                <?php else: ?>
+                    <p>No photo available</p>
+                <?php endif; ?>
+            </div>
+            <label for="photo">Change Photo</label>
+            <input type="file" id="photo" name="photo" accept="image/*">
             <button type="submit" name="submit">Update Component</button>
         </form>
     </div>

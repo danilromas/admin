@@ -113,10 +113,25 @@
         .sell_computer:hover {
             background-color: #218838;
         }
+        .back-button {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: #f4f4f4;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 0.5em 1em;
+            color: #007BFF;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .back-button:hover {
+            background-color: #e0e0e0;
+        }
     </style>
 </head>
 <body>
-
+<a href="index.html" class="back-button">Back to Index</a>
     <?php
     $servername = "localhost";
     $username = "root";

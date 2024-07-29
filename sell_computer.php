@@ -11,9 +11,10 @@ if ($conn->connect_error) {
 }
 
 $computer = null;
+$errors = [];
+
 if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['id'])) {
     $id = $_GET['id'];
-    echo "ID received: " . htmlspecialchars($id) . "<br>"; // Выводим ID
 
     $sql = "SELECT * FROM computers WHERE id = ?";
     $stmt = $conn->prepare($sql);
@@ -34,6 +35,41 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['id'])) {
     }
 
     $stmt->close();
+
+    if ($computer) {
+        // Список компонентов
+        $components = [
+            'motherboard' => $computer['motherboard_id'],
+            'ram' => $computer['ram_id'],
+            'gpu' => $computer['gpu_id'],
+            'psu' => $computer['psu_id'],
+            'ssd' => $computer['ssd_id'],
+            'hdd' => $computer['hdd_id'],
+            'case' => $computer['case_id']
+        ];
+
+        foreach ($components as $type => $id) {
+            // Проверка наличия компонента
+            $checkQuery = "SELECT quantity, name FROM components WHERE id = ?";
+            $checkStmt = $conn->prepare($checkQuery);
+            $checkStmt->bind_param("i", $id);
+            $checkStmt->execute();
+            $checkResult = $checkStmt->get_result();
+            $component = $checkResult->fetch_assoc();
+            
+            if ($component['quantity'] > 0) {
+                // Уменьшение количества компонентов
+                $updateQuery = "UPDATE components SET quantity = quantity - 1 WHERE id = ? AND quantity > 0";
+                $updateStmt = $conn->prepare($updateQuery);
+                $updateStmt->bind_param("i", $id);
+                $updateStmt->execute();
+                $updateStmt->close();
+            } else {
+                $errors[] = "Component " . htmlspecialchars($component['name']) . " is out of stock.";
+            }
+            $checkStmt->close();
+        }
+    }
 }
 
 $conn->close();
@@ -88,6 +124,10 @@ $conn->close();
         .readonly {
             background-color: #e9ecef;
         }
+        .errors {
+            color: #DC3545;
+            margin-bottom: 1em;
+        }
     </style>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
@@ -111,6 +151,13 @@ $conn->close();
 <body>
     <h2>Sell Computer</h2>
     <?php if ($computer): ?>
+        <?php if (!empty($errors)): ?>
+            <div class="errors">
+                <?php foreach ($errors as $error): ?>
+                    <p><?php echo $error; ?></p>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
         <form action="create_order.php" method="POST">
             <input type="hidden" name="computer_id" value="<?php echo htmlspecialchars($computer['id']); ?>">
             
