@@ -79,7 +79,6 @@ if (!$stmt) {
 }
 
 // Check data types and values
-echo "Parameters: $name, $motherboard_id, $processor_id, $ram_id, $gpu_id, $psu_id, $ssd_id, $hdd_id, $case_id, $cpu_cooler_id, $extra_cooler_id, $case_photo_name, $shop, $base_price, $markup, $final_price<br>";
 
 // Bind parameters
 // Note: `s` is for string, `i` is for integer, and `d` is for double (float).

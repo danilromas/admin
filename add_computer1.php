@@ -75,10 +75,15 @@
         document.addEventListener("DOMContentLoaded", function() {
             const componentSelects = document.querySelectorAll("select[name]");
             const basePriceInput = document.getElementById("base_price");
+            const finalPriceInput = document.getElementById("final_price");
+            const markupInput = document.getElementById("markup");
 
             componentSelects.forEach(select => {
                 select.addEventListener("change", updateBasePrice);
             });
+
+            basePriceInput.addEventListener("input", calculateMarkup);
+            finalPriceInput.addEventListener("input", calculateMarkup);
 
             function updateBasePrice() {
                 let totalPrice = 0;
@@ -94,6 +99,7 @@
                                 remaining--;
                                 if (remaining === 0) {
                                     basePriceInput.value = totalPrice.toFixed(2);
+                                    calculateMarkup();
                                 }
                             })
                             .catch(error => console.error('Error:', error));
@@ -101,9 +107,17 @@
                         remaining--;
                         if (remaining === 0) {
                             basePriceInput.value = totalPrice.toFixed(2);
+                            calculateMarkup();
                         }
                     }
                 });
+            }
+
+            function calculateMarkup() {
+                const basePrice = parseFloat(basePriceInput.value) || 0;
+                const finalPrice = parseFloat(finalPriceInput.value) || 0;
+                const markup = finalPrice - basePrice;
+                markupInput.value = markup.toFixed(2);
             }
         });
     </script>
@@ -192,14 +206,20 @@
                 <input type="file" id="case_photo" name="case_photo" required>
             </div>
             
-            <div class="form-group">
-                <label for="base_price">Base Price:</label>
-                <input type="number" id="base_price" name="base_price" step="0.01" readonly required>
+            <div class="form-group-inline">
+                <div class="form-group">
+                    <label for="base_price">Base Price:</label>
+                    <input type="number" id="base_price" name="base_price" step="0.01" readonly required>
+                </div>
+                <div class="form-group">
+                    <label for="final_price">Final Price:</label>
+                    <input type="number" id="final_price" name="final_price" step="0.01" required>
+                </div>
             </div>
             
             <div class="form-group">
                 <label for="markup">Markup:</label>
-                <input type="number" id="markup" name="markup" step="0.01" required>
+                <input type="number" id="markup" name="markup" step="0.01" readonly required>
             </div>
             
             <div class="form-group">
