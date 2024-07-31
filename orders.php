@@ -73,6 +73,7 @@ $sql = "
         c.shop AS shop_name
     FROM orders o
     JOIN computers c ON o.computer_id = c.id
+    WHERE o.status NOT IN ('куплен', 'отказ')
     ORDER BY $order_by $sort
 ";
 $result = $conn->query($sql);

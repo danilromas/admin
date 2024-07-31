@@ -29,17 +29,20 @@
             padding-bottom: 10px;
             color: #333;
         }
+        .computer-list {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
         .computer {
-            width: 100%;
-            max-width: 350px;
+            width: 30%;
             border: 1px solid #ddd;
             border-radius: 8px;
             padding: 15px;
-            margin: 10px;
+            margin: 10px 0;
             text-align: center;
             background: linear-gradient(to bottom right, #f9f9f9, #ffffff);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            display: inline-block;
             transition: transform 0.2s, box-shadow 0.2s;
         }
         .computer:hover {
@@ -48,7 +51,8 @@
         }
         .computer img {
             width: 100%;
-            height: auto;
+            height: 200px; /* Fixed height */
+            object-fit: cover; /* Ensure image fits within the container */
             border-radius: 8px;
             margin-bottom: 15px;
         }
@@ -57,9 +61,14 @@
             margin-bottom: 10px;
             color: #333;
         }
-        .computer p {
+        .computer ul {
+            list-style-type: none;
+            padding: 0;
+            text-align: left;
+        }
+        .computer ul li {
             font-size: 16px;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
             color: #666;
         }
         .computer .price {
@@ -157,6 +166,7 @@
             // Начало нового блока магазина
             echo '<div class="shop-section">';
             echo '<h2>' . htmlspecialchars($shopName) . '</h2>';
+            echo '<div class="computer-list">'; // Добавлено
 
             // Запрос для получения компьютеров конкретного магазина
             $computersQuery = "SELECT * FROM computers WHERE shop = ? ORDER BY name";
@@ -224,6 +234,7 @@
                 echo "<p>No computers found in this shop.</p>";
             }
 
+            echo '</div>'; // Закрытие computer-list
             echo '</div>'; // Закрытие блока магазина
         }
     } else {
