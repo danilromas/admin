@@ -146,7 +146,7 @@
 
 
     // Создание соединения
-    $conn = new mysqli($servername, $username, $password, $dbname);
+    $conn = new mysqli($db_config['servername'], $db_config['username'], $db_config['password'], $db_config['dbname']);
 
     // Проверка соединения
     if ($conn->connect_error) {
@@ -176,7 +176,7 @@
             if ($computersResult->num_rows > 0) {
                 while ($computerRow = $computersResult->fetch_assoc()) {
                     echo '<div class="computer">';
-                    echo '<img src="/uploads/' . htmlspecialchars($computerRow['case_photo']) . '.jpg" alt="Computer Photo">';
+                    echo '<img src="/uploads/' . htmlspecialchars($computerRow['case_photo']) . '" alt="Computer Photo">';
                     echo '<h3>' . htmlspecialchars($computerRow['name']) . '</h3>';
 
                     // Вывод компонентов

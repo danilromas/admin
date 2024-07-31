@@ -3,7 +3,7 @@ require 'config.php';  // Подключение файла конфигурац
 
 
 // Создание соединения
-$conn = new mysqli($servername, $username, $password, $dbname);
+$conn = new mysqli($db_config['servername'], $db_config['username'], $db_config['password'], $db_config['dbname']);
 
 // Установка кодировки
 if (!$conn->set_charset("utf8mb4")) {
