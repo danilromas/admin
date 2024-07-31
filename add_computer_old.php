@@ -53,10 +53,8 @@
         <label for="motherboard">Motherboard:</label>
         <select id="motherboard" name="motherboard" required>
             <?php
-            $servername = "localhost";
-            $username = "root";
-            $password = "";
-            $dbname = "computer_sales";
+            require 'config.php';  // Подключение файла конфигурации
+
 
             // Создание соединения
             $conn = new mysqli($servername, $username, $password, $dbname);

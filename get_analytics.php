@@ -1,8 +1,6 @@
 <?php
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "computer_sales";
+require 'config.php';  // Подключение файла конфигурации
+
 
 $dsn = "mysql:host=$host;dbname=$db;charset=utf8mb4";
 $options = [

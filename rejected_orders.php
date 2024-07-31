@@ -1,8 +1,6 @@
 <?php
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "computer_sales";
+require 'config.php';  // Подключение файла конфигурации
+
 
 $conn = new mysqli($servername, $username, $password, $dbname);
 
