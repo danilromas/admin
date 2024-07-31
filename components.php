@@ -1,16 +1,15 @@
 <?php
-// Включить отображение всех ошибок для отладки
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
 // Подключение к базе данных
 $servername = "localhost";
 $username = "root";
 $password = "";
 $dbname = "computer_sales";
 
-// Создание соединения
 $conn = new mysqli($servername, $username, $password, $dbname);
+
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
 
 // Установка кодировки
 if (!$conn->set_charset("utf8mb4")) {
@@ -18,16 +17,14 @@ if (!$conn->set_charset("utf8mb4")) {
     exit();
 }
 
-// Проверка соединения
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
-
 // Обработка удаления
 if (isset($_GET['delete_id'])) {
     $delete_id = intval($_GET['delete_id']);
     $delete_sql = "DELETE FROM components WHERE id = ?";
     $delete_stmt = $conn->prepare($delete_sql);
+    if ($delete_stmt === false) {
+        die("Error preparing delete statement: " . $conn->error);
+    }
     $delete_stmt->bind_param("i", $delete_id);
     if ($delete_stmt->execute()) {
         echo "Component deleted successfully.";
@@ -50,25 +47,114 @@ if (isset($_GET['category'])) {
 }
 
 // Построение SQL-запроса
-$sql = "SELECT * FROM components WHERE name LIKE ?";
+$sql = "SELECT * FROM components WHERE 1=1";
+
+$params = [];
+$types = '';
+
+if ($search) {
+    $sql .= " AND name LIKE ?";
+    $params[] = '%' . $search . '%';
+    $types .= 's'; // Строковый тип для параметра поиска
+}
 
 if ($category) {
     $sql .= " AND category = ?";
+    $params[] = $category;
+    $types .= 's'; // Строковый тип для параметра категории
 }
 
 $sql .= " ORDER BY name";
 
+// Подготовка запроса
 $stmt = $conn->prepare($sql);
+if ($stmt === false) {
+    die("Error preparing statement: " . $conn->error);
+}
 
-$searchParam = '%' . $search . '%';
-if ($category) {
-    $stmt->bind_param("ss", $searchParam, $category);
-} else {
-    $stmt->bind_param("s", $searchParam);
+// Связывание параметров
+if ($params) {
+    $stmt->bind_param($types, ...$params);
 }
 
 $stmt->execute();
 $result = $stmt->get_result();
+
+// Получение средней цены
+// Получение средней цены
+$sql_avg_price = "
+    SELECT
+        c.id,
+        c.name,
+        c.price AS component_price,
+        c.category,
+        c.photo,
+        c.quantity AS initial_quantity,
+        IFNULL(SUM(ca.price * ca.quantity), 0) AS total_arrival_price,
+        IFNULL(SUM(ca.quantity), 0) AS total_quantity_arrivals,
+        CASE
+            WHEN (c.quantity - IFNULL(SUM(ca.quantity), 0)) >= 0
+            THEN (
+                (c.price * (c.quantity - IFNULL(SUM(ca.quantity), 0))) + IFNULL(SUM(ca.price * ca.quantity), 0)
+            ) / c.quantity
+            ELSE IFNULL(SUM(ca.price * ca.quantity), 0) / IFNULL(SUM(ca.quantity), 0)
+        END AS average_price
+    FROM components c
+    LEFT JOIN component_arrivals ca ON c.id = ca.component_id
+    WHERE 1=1";
+
+$params_avg_price = [];
+$types_avg_price = '';
+
+if ($search) {
+    $sql_avg_price .= " AND c.name LIKE ?";
+    $params_avg_price[] = '%' . $search . '%';
+    $types_avg_price .= 's'; // Строковый тип для параметра поиска
+}
+
+if ($category) {
+    $sql_avg_price .= " AND c.category = ?";
+    $params_avg_price[] = $category;
+    $types_avg_price .= 's'; // Строковый тип для параметра категории
+}
+
+$sql_avg_price .= " GROUP BY c.id";
+
+$stmt_avg_price = $conn->prepare($sql_avg_price);
+if ($stmt_avg_price === false) {
+    die("Error preparing average price statement: " . $conn->error);
+}
+
+// Связывание параметров для среднего запроса
+if ($params_avg_price) {
+    $stmt_avg_price->bind_param($types_avg_price, ...$params_avg_price);
+}
+
+$stmt_avg_price->execute();
+$result_avg_price = $stmt_avg_price->get_result();
+if ($result_avg_price === false) {
+    die("Error executing average price statement: " . $stmt_avg_price->error);
+}
+
+// Связывание параметров для среднего запроса
+if ($params_avg_price) {
+    $stmt_avg_price->bind_param($types_avg_price, ...$params_avg_price);
+}
+
+$stmt_avg_price->execute();
+$result_avg_price = $stmt_avg_price->get_result();
+if ($result_avg_price === false) {
+    die("Error executing average price statement: " . $stmt_avg_price->error);
+}
+
+// Получение всех уникальных категорий
+$categories_sql = "SELECT DISTINCT category FROM components";
+$categories_result = $conn->query($categories_sql);
+if ($categories_result === false) {
+    die("Error fetching categories: " . $conn->error);
+}
+
+$conn->close();
 ?>
 
 <!DOCTYPE html>
@@ -170,16 +256,15 @@ $result = $stmt->get_result();
                 <input type="text" name="search" placeholder="Search..." value="<?php echo htmlspecialchars($search); ?>">
                 <select id="category" name="category">
                     <option value="">All Categories</option>
-                    <option value="Материнская плата" <?php echo $category == 'Материнская плата' ? 'selected' : ''; ?>>Материнская плата</option>
-                    <option value="Процессор" <?php echo $category == 'Процессор' ? 'selected' : ''; ?>>Процессор</option>
-                    <option value="Оперативная память" <?php echo $category == 'Оперативная память' ? 'selected' : ''; ?>>Оперативная память</option>
-                    <option value="Видеокарта" <?php echo $category == 'Видеокарта' ? 'selected' : ''; ?>>Видеокарта</option>
-                    <option value="Блок питания" <?php echo $category == 'Блок питания' ? 'selected' : ''; ?>>Блок питания</option>
-                    <option value="SSD диск" <?php echo $category == 'SSD диск' ? 'selected' : ''; ?>>SSD диск</option>
-                    <option value="HDD диск" <?php echo $category == 'HDD диск' ? 'selected' : ''; ?>>HDD диск</option>
-                    <option value="Корпус" <?php echo $category == 'Корпус' ? 'selected' : ''; ?>>Корпус</option>
-                    <option value="Куллер (процессор)" <?php echo $category == 'Куллер (процессор)' ? 'selected' : ''; ?>>Куллер (процессор)</option>
-                    <option value="Куллер (доп)" <?php echo $category == 'Куллер (доп)' ? 'selected' : ''; ?>>Куллер (доп)</option>
+                    <?php
+                    if ($categories_result->num_rows > 0) {
+                        while ($row = $categories_result->fetch_assoc()) {
+                            $cat = htmlspecialchars($row['category']);
+                            $selected = ($category == $cat) ? 'selected' : '';
+                            echo "<option value='$cat' $selected>$cat</option>";
+                        }
+                    }
+                    ?>
                 </select>
                 <button type="submit">Apply</button>
             </form>
@@ -198,15 +283,15 @@ $result = $stmt->get_result();
             </thead>
             <tbody>
                 <?php
-                if ($result->num_rows > 0) {
-                    while($row = $result->fetch_assoc()) {
+                if ($result_avg_price->num_rows > 0) {
+                    while ($row = $result_avg_price->fetch_assoc()) {
                         echo "<tr>";
                         echo "<td>" . htmlspecialchars($row['id']) . "</td>";
                         echo "<td>" . htmlspecialchars($row['name']) . "</td>";
-                        echo "<td>$" . htmlspecialchars(number_format($row['price'], 2)) . "</td>";
+                        echo "<td>$" . htmlspecialchars(number_format($row['average_price'], 2)) . "</td>";
                         echo "<td>" . htmlspecialchars($row['category']) . "</td>";
                         echo "<td><img src='" . htmlspecialchars($row['photo']) . "' alt='Component Photo' class='photo'></td>";
-                        echo "<td>" . htmlspecialchars($row['quantity']) . "</td>";
+                        echo "<td>" . htmlspecialchars($row['initial_quantity']) . "</td>";
                         echo "<td>
                             <a class='btn btn-edit' href='edit_component.php?id=" . htmlspecialchars($row['id']) . "'>Edit</a>
                             <a class='btn btn-delete' href='components.php?delete_id=" . htmlspecialchars($row['id']) . "' onclick='return confirm(\"Are you sure you want to delete this component?\")'>Delete</a>
@@ -216,7 +301,6 @@ $result = $stmt->get_result();
                 } else {
                     echo "<tr><td colspan='7'>No components found</td></tr>";
                 }
-                $conn->close();
                 ?>
             </tbody>
         </table>
