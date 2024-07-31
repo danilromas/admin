@@ -176,7 +176,7 @@
             if ($computersResult->num_rows > 0) {
                 while ($computerRow = $computersResult->fetch_assoc()) {
                     echo '<div class="computer">';
-                    echo '<img src="/uploads/' . htmlspecialchars($computerRow['case_photo']) . '" alt="Computer Photo">';
+                    echo '<img src="' . htmlspecialchars($computerRow['case_photo']) . '" alt="Computer Photo">';
                     echo '<h3>' . htmlspecialchars($computerRow['name']) . '</h3>';
 
                     // Вывод компонентов
