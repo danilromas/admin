@@ -144,7 +144,6 @@
     <?php
     require 'config.php';  // Подключение файла конфигурации
 
-
     // Создание соединения
     $conn = new mysqli($db_config['servername'], $db_config['username'], $db_config['password'], $db_config['dbname']);
 
@@ -182,23 +181,27 @@
                     // Вывод компонентов
                     echo '<ul>';
                     $components = [
-                        'motherboard' => $computerRow['motherboard_id'],
-                        'ram' => $computerRow['ram_id'],
-                        'gpu' => $computerRow['gpu_id'],
-                        'psu' => $computerRow['psu_id'],
-                        'ssd' => $computerRow['ssd_id'],
-                        'hdd' => $computerRow['hdd_id'],
-                        'case' => $computerRow['case_id']
+                        'Motherboard' => $computerRow['motherboard_id'],
+                        'RAM' => $computerRow['ram_id'],
+                        'GPU' => $computerRow['gpu_id'],
+                        'PSU' => $computerRow['psu_id'],
+                        'SSD' => $computerRow['ssd_id'],
+                        'HDD' => $computerRow['hdd_id'],
+                        'Case' => $computerRow['case_id']
                     ];
 
                     foreach ($components as $type => $id) {
-                        $query = "SELECT name FROM components WHERE id = ?";
+                        $query = "SELECT name, price FROM components WHERE id = ?";
                         $stmt = $conn->prepare($query);
                         $stmt->bind_param("i", $id);
                         $stmt->execute();
                         $result = $stmt->get_result();
                         $component = $result->fetch_assoc();
-                        echo '<li><strong>' . ucfirst($type) . ':</strong> ' . htmlspecialchars($component['name']) . '</li>';
+                        if ($component) {
+                            echo '<li><strong>' . htmlspecialchars($type) . ':</strong> ' . htmlspecialchars($component['name']) . ' - $' . htmlspecialchars($component['price']) . '</li>';
+                        } else {
+                            echo '<li><strong>' . htmlspecialchars($type) . ':</strong> Unknown</li>';
+                        }
                     }
                     echo '</ul>';
 
