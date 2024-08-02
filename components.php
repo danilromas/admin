@@ -292,9 +292,10 @@ $conn->close();
                         echo "<td>" . htmlspecialchars($row['initial_quantity']) . "</td>";
                         echo "<td>
                             <a class='btn btn-edit' href='edit_component.php?id=" . htmlspecialchars($row['id']) . "'>Edit</a>
-                            <a class='btn btn-delete' href='components.php?delete_id=" . htmlspecialchars($row['id']) . "' onclick='return confirm(\"Are you sure you want to delete this component?\")'>Delete</a>
                         </td>";
                         echo "</tr>";
+                        /*echo "                            <a class='btn btn-delete' href='components.php?delete_id=" . htmlspecialchars($row['id']) . "' onclick='return confirm(\"Are you sure you want to delete this component?\")'>Delete</a>
+"; */
                     }
                 } else {
                     echo "<tr><td colspan='7'>No components found</td></tr>";

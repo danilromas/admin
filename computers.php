@@ -219,7 +219,7 @@
 
                     echo '<form action="delete_computer.php" method="post">';
                     echo '<input type="hidden" name="id" value="' . htmlspecialchars($computerRow['id']) . '">';
-                    echo '<button type="submit" class="delete-button">Delete</button>';
+                    /*echo '<button type="submit" class="delete-button">Delete</button>'; */
                     echo '</form>';
 
                     echo '<form action="sell_computer.php" method="get">';
