@@ -148,6 +148,8 @@
     $conn = new mysqli($db_config['servername'], $db_config['username'], $db_config['password'], $db_config['dbname']);
 
     // Проверка соединения
+    $conn->set_charset("utf8mb4");
+
     if ($conn->connect_error) {
         die("Connection failed: " . $conn->connect_error);
     }
@@ -206,10 +208,7 @@
                     echo '</ul>';
 
                     echo '<p class="price">Final Price: $' . htmlspecialchars($computerRow['final_price']) . '</p>';
-
                     // Доступность
-                    $availability = $computerRow['availability'] ? 'In Stock' : 'Out of Stock';
-                    echo '<p class="availability">Availability: ' . htmlspecialchars($availability) . '</p>';
 
                     // Кнопки редактирования, удаления и продажи
                     echo '<div class="buttons">';
