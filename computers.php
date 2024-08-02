@@ -176,10 +176,17 @@
 
             if ($computersResult->num_rows > 0) {
                 while ($computerRow = $computersResult->fetch_assoc()) {
+                    $casePhoto = htmlspecialchars($computerRow['case_photo']);
+                    // Проверка и добавление расширения только если его нет
+                    $photoPath = 'uploads/' . $casePhoto;
+                    if (pathinfo($photoPath, PATHINFO_EXTENSION) === '') {
+                        $photoPath .= '.jpg';
+                    }
+            
                     echo '<div class="computer">';
-                    echo '<img src="' . htmlspecialchars($computerRow['case_photo']) . '" alt="Computer Photo">';
+                    echo '<img src="' . $photoPath . '" alt="Computer Photo">';
                     echo '<h3>' . htmlspecialchars($computerRow['name']) . '</h3>';
-
+            
                     // Вывод компонентов
                     echo '<ul>';
                     $components = [
@@ -191,6 +198,8 @@
                         'HDD' => $computerRow['hdd_id'],
                         'Case' => $computerRow['case_id']
                     ];
+
+            
 
                     foreach ($components as $type => $id) {
                         $query = "SELECT name, price FROM components WHERE id = ?";

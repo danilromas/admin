@@ -4,10 +4,12 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 // Database connection
-require 'config.php';  // Подключение файла конфигурации
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "computer_sales";
 
-
-$conn = new mysqli($db_config['servername'], $db_config['username'], $db_config['password'], $db_config['dbname']);
+$conn = new mysqli($servername, $username, $password, $dbname);
 
 if (!$conn->set_charset("utf8mb4")) {
     printf("Error loading character set utf8mb4: %s\n", $conn->error);
@@ -49,12 +51,9 @@ if (isset($_FILES["case_photo"]) && $_FILES["case_photo"]["error"] == UPLOAD_ERR
     $file_extension = pathinfo($original_file_name, PATHINFO_EXTENSION);
 
     // Generate new file name without extension
-    $case_photo_name = pathinfo($original_file_name, PATHINFO_FILENAME);
+    $case_photo_name = $original_file_name;
 
-    // Add .jpg extension
-    $case_photo_name .= ".jpg";
-
-    $target_file = $target_dir . $case_photo_name;
+    $target_file = $target_dir . basename($case_photo_name);
 
     // Move uploaded file to target directory
     if (move_uploaded_file($fileTmpName, $target_file)) {
@@ -77,6 +76,7 @@ if (!$stmt) {
 }
 
 // Check data types and values
+echo "Parameters: $name, $motherboard_id, $processor_id, $ram_id, $gpu_id, $psu_id, $ssd_id, $hdd_id, $case_id, $cpu_cooler_id, $extra_cooler_id, $case_photo_name, $shop, $base_price, $markup, $final_price<br>";
 
 // Bind parameters
 // Note: `s` is for string, `i` is for integer, and `d` is for double (float).

@@ -1,3 +1,83 @@
+<?php
+require 'config.php';  // Подключение файла конфигурации
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $name = $_POST['name'];
+    $motherboard = $_POST['motherboard'];
+    $processor = $_POST['processor'];
+    $ram = $_POST['ram'];
+    $gpu = $_POST['gpu'];
+    $psu = $_POST['psu'];
+    $ssd = $_POST['ssd'];
+    $hdd = $_POST['hdd'];
+    $case = $_POST['case'];
+    $cpu_cooler = $_POST['cpu_cooler'];
+    $extra_cooler = $_POST['extra_cooler'];
+    $base_price = $_POST['base_price'];
+    $final_price = $_POST['final_price'];
+    $markup = $_POST['markup'];
+    $shop = $_POST['shop'];
+    
+    // Обработка загрузки файла
+    $case_photo_path = '';
+    if (isset($_FILES['case_photo']) && $_FILES['case_photo']['error'] === UPLOAD_ERR_OK) {
+        $fileTmpPath = $_FILES['case_photo']['tmp_name'];
+        $fileName = $_FILES['case_photo']['name'];
+        $fileSize = $_FILES['case_photo']['size'];
+        $fileType = $_FILES['case_photo']['type'];
+        $fileNameCmps = explode(".", $fileName);
+        $fileExtension = strtolower(end($fileNameCmps));
+
+        // Расширения файлов, которые разрешено загружать
+        $allowedfileExtensions = array('jpg', 'gif', 'png', 'jpeg');
+
+        if (in_array($fileExtension, $allowedfileExtensions)) {
+            // Загрузка файла в указанную директорию
+            $uploadFileDir = './uploaded_photos/';
+            $dest_path = $uploadFileDir . $fileName;
+
+            if (move_uploaded_file($fileTmpPath, $dest_path)) {
+                $case_photo_path = $dest_path;
+            } else {
+                echo 'There was an error moving the uploaded file to the upload directory. Please make sure the upload directory is writable by the web server.';
+            }
+        } else {
+            echo 'Upload failed. Allowed file types: ' . implode(',', $allowedfileExtensions);
+        }
+    } else {
+        echo 'There is some error in the file upload. Please check the following error.<br>';
+        echo 'Error:' . $_FILES['case_photo']['error'];
+    }
+
+    // Создание соединения
+    $conn = new mysqli($db_config['servername'], $db_config['username'], $db_config['password'], $db_config['dbname']);
+    
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
+    
+    // Установка кодировки
+    if (!$conn->set_charset("utf8mb4")) {
+        printf("Error loading character set utf8mb4: %s\n", $conn->error);
+        exit();
+    }
+
+    // Вставка данных в базу данных
+    $sql = "INSERT INTO computer_builds (name, motherboard, processor, ram, gpu, psu, ssd, hdd, case, cpu_cooler, extra_cooler, base_price, final_price, markup, shop, case_photo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ssssssssssssssss", $name, $motherboard, $processor, $ram, $gpu, $psu, $ssd, $hdd, $case, $cpu_cooler, $extra_cooler, $base_price, $final_price, $markup, $shop, $case_photo_path);
+
+    if ($stmt->execute()) {
+        echo "New record created successfully";
+    } else {
+        echo "Error: " . $sql . "<br>" . $conn->error;
+    }
+
+    $stmt->close();
+    $conn->close();
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -239,9 +319,8 @@
         function generateOptions($category) {
             require 'config.php';  // Подключение файла конфигурации
 
-
             // Создание соединения
-$conn = new mysqli($db_config['servername'], $db_config['username'], $db_config['password'], $db_config['dbname']);
+            $conn = new mysqli($db_config['servername'], $db_config['username'], $db_config['password'], $db_config['dbname']);
 
             // Установка кодировки
             if (!$conn->set_charset("utf8mb4")) {
