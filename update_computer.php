@@ -24,10 +24,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Обработка загруженного файла
     $photoPath = null;
     if (isset($_FILES['case_photo']) && $_FILES['case_photo']['error'] === UPLOAD_ERR_OK) {
-        $uploadDir = '';
+        $uploadDir = 'uploads/';
         $uploadFile = $uploadDir . basename($_FILES['case_photo']['name']);
+        $uploadFile1 = basename($_FILES['case_photo']['name']);
         if (move_uploaded_file($_FILES['case_photo']['tmp_name'], $uploadFile)) {
-            $photoPath = $uploadFile;
+            $photoPath = $uploadFile1;
         }
     }
 

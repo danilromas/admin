@@ -3,13 +3,10 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-// Database connection
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "computer_sales";
+require 'config.php';  // Подключение файла конфигурации
 
-$conn = new mysqli($servername, $username, $password, $dbname);
+
+$conn = new mysqli($db_config['servername'], $db_config['username'], $db_config['password'], $db_config['dbname']);
 
 if (!$conn->set_charset("utf8mb4")) {
     printf("Error loading character set utf8mb4: %s\n", $conn->error);
