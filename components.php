@@ -246,8 +246,7 @@ $conn->close();
 </head>
 <body>
     <div class="container">
-    <a href="index.html" class="back-button">Back to Index</a>
-
+        <a href="index.html" class="back-button">Back to Index</a>
         <h1>Components List</h1>
         <div class="filters">
             <form action="components.php" method="get">
@@ -283,10 +282,13 @@ $conn->close();
                 <?php
                 if ($result_avg_price->num_rows > 0) {
                     while ($row = $result_avg_price->fetch_assoc()) {
+                        // Обработка null значений для average_price
+                        $average_price = $row['average_price'] !== null ? number_format($row['average_price'], 2) : '0.00';
+                        
                         echo "<tr>";
                         echo "<td>" . htmlspecialchars($row['id']) . "</td>";
                         echo "<td>" . htmlspecialchars($row['name']) . "</td>";
-                        echo "<td>$" . htmlspecialchars(number_format($row['average_price'], 2)) . "</td>";
+                        echo "<td>$" . htmlspecialchars($average_price) . "</td>";
                         echo "<td>" . htmlspecialchars($row['category']) . "</td>";
                         echo "<td><img src='" . htmlspecialchars($row['photo']) . "' alt='Component Photo' class='photo'></td>";
                         echo "<td>" . htmlspecialchars($row['initial_quantity']) . "</td>";
