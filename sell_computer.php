@@ -1,8 +1,9 @@
 <?php
 require 'config.php';  // Подключение файла конфигурации
 
-
+// Подключение к базе данных с установкой кодировки
 $conn = new mysqli($db_config['servername'], $db_config['username'], $db_config['password'], $db_config['dbname']);
+$conn->set_charset("utf8mb4");
 
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
@@ -54,7 +55,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['id'])) {
             $checkStmt->execute();
             $checkResult = $checkStmt->get_result();
             $component = $checkResult->fetch_assoc();
-            
+
             if ($component['quantity'] > 0) {
                 // Уменьшение количества компонентов
                 $updateQuery = "UPDATE components SET quantity = quantity - 1 WHERE id = ? AND quantity > 0";
@@ -74,7 +75,7 @@ $conn->close();
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <title>Sell Computer</title>
@@ -158,28 +159,28 @@ $conn->close();
         <?php endif; ?>
         <form action="create_order.php" method="POST">
             <input type="hidden" name="computer_id" value="<?php echo htmlspecialchars($computer['id']); ?>">
-            
+
             <label for="base_price">Base Price:</label>
             <input type="number" id="base_price" class="readonly" value="<?php echo htmlspecialchars($computer['final_price']); ?>" readonly>
 
             <label for="date">Date:</label>
             <input type="date" id="date" name="date" required>
-            
+
             <label for="name">Full Name:</label>
             <input type="text" id="name" name="name" required>
-            
+
             <label for="city">City:</label>
             <input type="text" id="city" name="city" required>
-            
+
             <label for="delivery">Delivery Method:</label>
             <select id="delivery" name="delivery" required>
                 <option value="До города">До города</option>
                 <option value="Самовывоз">Самовывоз</option>
             </select>
-            
+
             <label for="additional">Additional Components:</label>
             <textarea id="additional" name="additional"></textarea>
-            
+
             <label for="additional_price">Additional Price:</label>
             <input type="number" id="additional_price" name="additional_price" step="0.01">
 

@@ -3,6 +3,7 @@ require 'config.php';  // Подключение файла конфигурац
 
 
 $conn = new mysqli($db_config['servername'], $db_config['username'], $db_config['password'], $db_config['dbname']);
+$conn->set_charset("utf8mb4");
 
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);

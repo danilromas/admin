@@ -1,19 +1,18 @@
 <?php
 require 'config.php';  // Подключение файла конфигурации
 
-
 $conn = new mysqli($db_config['servername'], $db_config['username'], $db_config['password'], $db_config['dbname']);
-
-$conn->set_charset("utf8mb4");
 
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
+$conn->set_charset("utf8mb4");
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['update_status'])) {
-        $order_id = $_POST['order_id'];
-        $status = $_POST['status'];
+        $order_id = intval($_POST['order_id']);
+        $status = $conn->real_escape_string($_POST['status']);
 
         $sql = "UPDATE orders SET status = ? WHERE id = ?";
         $stmt = $conn->prepare($sql);
@@ -27,7 +26,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         $stmt->close();
     } elseif (isset($_POST['delete_order'])) {
-        $order_id = $_POST['order_id'];
+        $order_id = intval($_POST['order_id']);
 
         $sql = "DELETE FROM orders WHERE id = ?";
         $stmt = $conn->prepare($sql);
@@ -44,8 +43,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 
 // Get sorting parameters
-$order_by = isset($_GET['order_by']) ? $_GET['order_by'] : 'date';
-$sort = isset($_GET['sort']) ? $_GET['sort'] : 'ASC';
+$order_by = isset($_GET['order_by']) ? $conn->real_escape_string($_GET['order_by']) : 'date';
+$sort = isset($_GET['sort']) ? $conn->real_escape_string($_GET['sort']) : 'ASC';
 
 // Validate sorting parameters
 $valid_columns = ['date', 'order_name', 'city', 'delivery', 'additional', 'additional_price', 'total_price', 'status', 'computer_name', 'shop_name'];
@@ -85,7 +84,7 @@ if (!$result) {
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <title>Orders</title>
@@ -161,6 +160,7 @@ if (!$result) {
     </style>
 </head>
 <body>
+<body>
     <h2>Orders</h2>
     <table>
         <tr>
@@ -179,8 +179,8 @@ if (!$result) {
         </tr>
         <?php while ($row = $result->fetch_assoc()) { ?>
             <tr>
-                <td><?php echo $row['order_id']; ?></td>
-                <td><?php echo $row['date']; ?></td>
+                <td><?php echo htmlspecialchars($row['order_id']); ?></td>
+                <td><?php echo htmlspecialchars($row['date']); ?></td>
                 <td><?php echo htmlspecialchars($row['order_name']); ?></td>
                 <td><?php echo htmlspecialchars($row['city']); ?></td>
                 <td><?php echo htmlspecialchars($row['delivery']); ?></td>
@@ -192,7 +192,7 @@ if (!$result) {
                 <td><?php echo htmlspecialchars($row['shop_name']); ?></td>
                 <td>
                     <form action="orders.php" method="POST" style="display:inline;">
-                        <input type="hidden" name="order_id" value="<?php echo $row['order_id']; ?>">
+                        <input type="hidden" name="order_id" value="<?php echo htmlspecialchars($row['order_id']); ?>">
                         <select name="status" class="status-select">
                             <option value="принят" <?php echo $row['status'] == 'принят' ? 'selected' : ''; ?>>принят</option>
                             <option value="собран" <?php echo $row['status'] == 'собран' ? 'selected' : ''; ?>>собран</option>
@@ -203,11 +203,11 @@ if (!$result) {
                         <input type="submit" name="update_status" class="update-status" value="Update Status">
                     </form>
                     <form action="orders.php" method="POST" style="display:inline;">
-                        <input type="hidden" name="order_id" value="<?php echo $row['order_id']; ?>">
+                        <input type="hidden" name="order_id" value="<?php echo htmlspecialchars($row['order_id']); ?>">
                         <input type="submit" name="delete_order" class="delete-order" value="Delete" onclick="return confirm('Are you sure you want to delete this order?');">
                     </form>
                     <form action="edit_order.php" method="GET" style="display:inline;">
-                        <input type="hidden" name="id" value="<?php echo $row['order_id']; ?>">
+                        <input type="hidden" name="id" value="<?php echo htmlspecialchars($row['order_id']); ?>">
                         <input type="submit" class="edit-order" value="Edit">
                     </form>
                 </td>
