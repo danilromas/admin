@@ -7,27 +7,9 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Sharp" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <title>Responsive Dashboard Design</title>
-    <style>
-        #password-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-        }
-        #main-content {
-            display: none;
-        }
-    </style>
 </head>
 
 <body>
-    <div id="password-container">
-        <h2>Enter Password</h2>
-        <input type="password" id="password-input" placeholder="Password">
-        <button id="submit-password">Submit</button>
-        <p id="error-message" style="color: red; display: none;">Incorrect password, try again.</p>
-    </div>
 
     <div id="main-content">
         <div class="container">
@@ -233,19 +215,6 @@
         </div>
     </div>
 
-    <script>
-        document.getElementById('submit-password').addEventListener('click', function() {
-            const password = document.getElementById('password-input').value;
-            const correctPassword = 'XiaomiRedmi8';  // Replace with your actual password
-            
-            if (password === correctPassword) {
-                document.getElementById('password-container').style.display = 'none';
-                document.getElementById('main-content').style.display = 'block';
-            } else {
-                document.getElementById('error-message').style.display = 'block';
-            }
-        });
-    </script>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="orders.js"></script>

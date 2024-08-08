@@ -288,7 +288,7 @@ $conn->close();
                         echo "<tr>";
                         echo "<td>" . htmlspecialchars($row['id']) . "</td>";
                         echo "<td>" . htmlspecialchars($row['name']) . "</td>";
-                        echo "<td>$" . htmlspecialchars($average_price) . "</td>";
+                        echo "<td>" . htmlspecialchars($average_price) . " руб</td>";
                         echo "<td>" . htmlspecialchars($row['category']) . "</td>";
                         echo "<td><img src='" . htmlspecialchars($row['photo']) . "' alt='Component Photo' class='photo'></td>";
                         echo "<td>" . htmlspecialchars($row['initial_quantity']) . "</td>";

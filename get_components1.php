@@ -1,11 +1,11 @@
 <?php
 require 'config.php';  // Подключение файла конфигурации
 
-
 $conn = new mysqli($db_config['servername'], $db_config['username'], $db_config['password'], $db_config['dbname']);
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
+$conn->set_charset("utf8mb4"); // Установите кодировку
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $category = $_POST['category'];

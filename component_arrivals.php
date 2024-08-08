@@ -100,15 +100,21 @@
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
             xhr.onload = function() {
                 if (xhr.status === 200) {
-                    var components = JSON.parse(xhr.responseText);
-                    var componentSelect = document.getElementById('component_id');
-                    componentSelect.innerHTML = '<option value="">Select a component</option>';
-                    components.forEach(function(component) {
-                        var option = document.createElement('option');
-                        option.value = component.id;
-                        option.textContent = component.name;
-                        componentSelect.appendChild(option);
-                    });
+                    try {
+                        var components = JSON.parse(xhr.responseText);
+                        var componentSelect = document.getElementById('component_id');
+                        componentSelect.innerHTML = '<option value="">Select a component</option>';
+                        components.forEach(function(component) {
+                            var option = document.createElement('option');
+                            option.value = component.id;
+                            option.textContent = component.name;
+                            componentSelect.appendChild(option);
+                        });
+                    } catch (e) {
+                        console.error('Failed to parse JSON response', e);
+                    }
+                } else {
+                    console.error('Failed to load components', xhr.status, xhr.statusText);
                 }
             };
             xhr.send('category=' + encodeURIComponent(category));

@@ -209,14 +209,14 @@
                         $result = $stmt->get_result();
                         $component = $result->fetch_assoc();
                         if ($component) {
-                            echo '<li><strong>' . htmlspecialchars($type) . ':</strong> ' . htmlspecialchars($component['name']) . ' - $' . htmlspecialchars($component['price']) . '</li>';
+                            echo '<li><strong>' . htmlspecialchars($type) . ':</strong> ' . htmlspecialchars($component['name']) . ' - ' . htmlspecialchars($component['price']) . ' руб. </li>';
                         } else {
                             echo '<li><strong>' . htmlspecialchars($type) . ':</strong> Unknown</li>';
                         }
                     }
                     echo '</ul>';
 
-                    echo '<p class="price">Final Price: $' . htmlspecialchars($computerRow['final_price']) . '</p>';
+                    echo '<p class="price">Final Price: ' . htmlspecialchars($computerRow['final_price']) . ' руб.</p>';
                     // Доступность
 
                     // Кнопки редактирования, удаления и продажи
