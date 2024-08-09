@@ -8,6 +8,8 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
+$conn->set_charset("utf8mb4"); // Установите кодировку
+
 // Обработка POST-запроса для обновления статуса
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['deliver_id'])) {

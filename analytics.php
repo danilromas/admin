@@ -1,12 +1,14 @@
 <?php
 // Подключение к базе данных
-require 'config.php';  // Подключение файла конфигурации
+require 'config.php';
 
 $conn = new mysqli($db_config['servername'], $db_config['username'], $db_config['password'], $db_config['dbname']);
 
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
+
+$conn->set_charset("utf8mb4"); // Установите кодировку
 
 // Установка кодировки
 if (!$conn->set_charset("utf8mb4")) {
@@ -18,9 +20,10 @@ if (!$conn->set_charset("utf8mb4")) {
 $start_date = isset($_GET['start_date']) ? $_GET['start_date'] : '1970-01-01';
 $end_date = isset($_GET['end_date']) ? $_GET['end_date'] : date('Y-m-d');
 
-// Запрос на данные о заказах и наценке на компьютеры
+// Запрос на данные о заказах и наценке на компьютеры с учётом магазинов
 $sql_orders = "
     SELECT
+        comp.shop AS store,
         comp.name AS computer_name,
         COUNT(o.id) AS total_sold,
         SUM(o.total_price) AS total_revenue,
@@ -28,7 +31,7 @@ $sql_orders = "
     FROM orders o
     JOIN computers comp ON o.computer_id = comp.id
     WHERE o.status = 'куплен' AND o.date BETWEEN ? AND ?
-    GROUP BY comp.name";
+    GROUP BY comp.shop, comp.name";
 $stmt_orders = $conn->prepare($sql_orders);
 if ($stmt_orders === false) {
     die("Error preparing orders statement: " . $conn->error);
@@ -40,25 +43,26 @@ if ($result_orders === false) {
     die("Error executing orders statement: " . $stmt_orders->error);
 }
 
-// Получение общего количества проданных товаров, выручки и наценки
+// Инициализация данных для отчёта
 $total_sold = 0;
 $total_revenue = 0;
 $total_markup = 0;
-$labels = [];
-$sold_data = [];
-$revenue_data = [];
-$markup_data = [];
+$stores_data = []; // Данные по магазинам
+
 while ($row = $result_orders->fetch_assoc()) {
-    $labels[] = '"' . htmlspecialchars($row['computer_name']) . '"';
-    $sold_data[] = $row['total_sold'];
-    $revenue_data[] = $row['total_revenue'];
-    $markup_data[] = $row['total_markup'];
+    $store = htmlspecialchars($row['store']);
+    $computer_name = htmlspecialchars($row['computer_name']);
+    
+    $stores_data[$store]['sold'][$computer_name] = $row['total_sold'];
+    $stores_data[$store]['revenue'][$computer_name] = $row['total_revenue'];
+    $stores_data[$store]['markup'][$computer_name] = $row['total_markup'];
+    
     $total_sold += $row['total_sold'];
     $total_revenue += $row['total_revenue'];
     $total_markup += $row['total_markup'];
 }
 
-// Запрос на данные о компонентах и их затратах
+// Получение данных о компонентах и их затратах
 $sql_components = "
     SELECT
         c.name AS component_name,
@@ -79,7 +83,6 @@ if ($result_components === false) {
     die("Error executing components statement: " . $stmt_components->error);
 }
 
-// Расчет расходов на компоненты
 $total_expenses = 0;
 $components_data = [];
 while ($row = $result_components->fetch_assoc()) {
@@ -94,6 +97,31 @@ while ($row = $result_components->fetch_assoc()) {
         'quantity' => $total_quantity,
         'cost' => number_format($total_cost, 2)
     ];
+}
+
+// Запрос на получение расходов по магазинам
+$sql_expenses = "
+    SELECT
+        store_id,
+        category,
+        SUM(amount) AS total_expense
+    FROM expenses
+    WHERE date BETWEEN ? AND ?
+    GROUP BY store_id, category";
+$stmt_expenses = $conn->prepare($sql_expenses);
+if ($stmt_expenses === false) {
+    die("Error preparing expenses statement: " . $conn->error);
+}
+$stmt_expenses->bind_param("ss", $start_date, $end_date);
+$stmt_expenses->execute();
+$result_expenses = $stmt_expenses->get_result();
+if ($result_expenses === false) {
+    die("Error executing expenses statement: " . $stmt_expenses->error);
+}
+
+$expenses_data = [];
+while ($row = $result_expenses->fetch_assoc()) {
+    $expenses_data[$row['store_id']][$row['category']] = $row['total_expense'];
 }
 
 // Закрытие соединения
@@ -188,10 +216,11 @@ $conn->close();
         <p>Total Revenue: $<?php echo htmlspecialchars(number_format($total_revenue, 2)); ?></p>
         <p>Total Markup (Profit): $<?php echo htmlspecialchars(number_format($total_markup, 2)); ?></p>
 
-        <h2>Sold Computers</h2>
+        <h2>Sold Computers by Store</h2>
         <table>
             <thead>
                 <tr>
+                    <th>Store</th>
                     <th>Computer Name</th>
                     <th>Total Sold</th>
                     <th>Total Revenue</th>
@@ -200,14 +229,16 @@ $conn->close();
             </thead>
             <tbody>
                 <?php
-                $result_orders->data_seek(0);
-                while ($row = $result_orders->fetch_assoc()) {
-                    echo "<tr>";
-                    echo "<td>" . htmlspecialchars($row['computer_name']) . "</td>";
-                    echo "<td>" . htmlspecialchars($row['total_sold']) . "</td>";
-                    echo "<td>$" . htmlspecialchars(number_format($row['total_revenue'], 2)) . "</td>";
-                    echo "<td>$" . htmlspecialchars(number_format($row['total_markup'], 2)) . "</td>";
-                    echo "</tr>";
+                foreach ($stores_data as $store => $data) {
+                    foreach ($data['sold'] as $computer_name => $total_sold) {
+                        echo "<tr>";
+                        echo "<td>" . htmlspecialchars($store) . "</td>";
+                        echo "<td>" . htmlspecialchars($computer_name) . "</td>";
+                        echo "<td>" . htmlspecialchars($total_sold) . "</td>";
+                        echo "<td>$" . htmlspecialchars(number_format($data['revenue'][$computer_name], 2)) . "</td>";
+                        echo "<td>$" . htmlspecialchars(number_format($data['markup'][$computer_name], 2)) . "</td>";
+                        echo "</tr>";
+                    }
                 }
                 ?>
             </tbody>
@@ -224,68 +255,87 @@ $conn->close();
             </thead>
             <tbody>
                 <?php
-                foreach ($components_data as $data) {
+                foreach ($components_data as $component) {
                     echo "<tr>";
-                    echo "<td>" . htmlspecialchars($data['name']) . "</td>";
-                    echo "<td>" . htmlspecialchars($data['quantity']) . "</td>";
-                    echo "<td>$" . htmlspecialchars($data['cost']) . "</td>";
+                    echo "<td>" . htmlspecialchars($component['name']) . "</td>";
+                    echo "<td>" . htmlspecialchars($component['quantity']) . "</td>";
+                    echo "<td>$" . htmlspecialchars($component['cost']) . "</td>";
                     echo "</tr>";
                 }
                 ?>
             </tbody>
         </table>
 
+        <h2>Store Expenses</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Store ID</th>
+                    <th>Category</th>
+                    <th>Total Expense</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php
+                foreach ($expenses_data as $store_id => $categories) {
+                    foreach ($categories as $category => $expense) {
+                        echo "<tr>";
+                        echo "<td>" . htmlspecialchars($store_id) . "</td>";
+                        echo "<td>" . htmlspecialchars($category) . "</td>";
+                        echo "<td>$" . htmlspecialchars(number_format($expense, 2)) . "</td>";
+                        echo "</tr>";
+                    }
+                }
+                ?>
+            </tbody>
+        </table>
+
         <div class="charts">
-            <h2>Sales Charts</h2>
-            <canvas id="salesChart"></canvas>
-            <canvas id="markupChart"></canvas>
+            <canvas id="profitChart"></canvas>
         </div>
 
         <script>
-            document.addEventListener("DOMContentLoaded", function() {
-                var ctxSales = document.getElementById('salesChart').getContext('2d');
-                var salesChart = new Chart(ctxSales, {
-                    type: 'bar',
-                    data: {
-                        labels: [<?php echo implode(',', $labels); ?>],
-                        datasets: [{
-                            label: 'Number of Units Sold',
-                            data: [<?php echo implode(',', $sold_data); ?>],
-                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                            borderColor: 'rgba(75, 192, 192, 1)',
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        scales: {
-                            y: {
-                                beginAtZero: true
-                            }
-                        }
-                    }
-                });
-
-                var ctxMarkup = document.getElementById('markupChart').getContext('2d');
-                var markupChart = new Chart(ctxMarkup, {
-                    type: 'bar',
-                    data: {
-                        labels: [<?php echo implode(',', $labels); ?>],
-                        datasets: [{
+            var ctx = document.getElementById('profitChart').getContext('2d');
+            var chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: <?php echo json_encode(array_keys($stores_data)); ?>,
+                    datasets: [
+                        {
+                            label: 'Total Revenue',
+                            backgroundColor: 'rgb(75, 192, 192)',
+                            borderColor: 'rgb(75, 192, 192)',
+                            data: <?php echo json_encode(array_map(function($store) {
+                                return array_sum($store['revenue']);
+                            }, $stores_data)); ?>
+                        },
+                        {
                             label: 'Total Markup',
-                            data: [<?php echo implode(',', $markup_data); ?>],
-                            backgroundColor: 'rgba(153, 102, 255, 0.2)',
-                            borderColor: 'rgba(153, 102, 255, 1)',
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        scales: {
-                            y: {
-                                beginAtZero: true
+                            backgroundColor: 'rgb(153, 102, 255)',
+                            borderColor: 'rgb(153, 102, 255)',
+                            data: <?php echo json_encode(array_map(function($store) {
+                                return array_sum($store['markup']);
+                            }, $stores_data)); ?>
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Stores'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Amount ($)'
                             }
                         }
                     }
-                });
+                }
             });
         </script>
     </div>
