@@ -140,11 +140,11 @@ $conn->close();
     <form action="add_expense.php" method="post">
         <label for="store_id">Store:</label>
         <select name="store_id" id="store_id">
-            <option value="Techpower">Techpower</option>
-            <option value="HQ">HQ</option>
-            <option value="Artem">Artem</option>
-            <option value="4">4</option>
-            <!-- Добавьте остальные магазины -->
+            <option value="1">Techpower</option> <!-- Используйте правильные ID магазинов -->
+            <option value="2">HQ</option>
+            <option value="3">Artem</option>
+            <option value="4">Another Store</option>
+            <!-- Добавьте остальные магазины с правильными ID -->
         </select>
 
         <label for="category">Category:</label>

@@ -124,6 +124,13 @@ while ($row = $result_expenses->fetch_assoc()) {
     $expenses_data[$row['store_id']][$row['category']] = $row['total_expense'];
 }
 
+$store_names = [
+    1 => "Techpower",
+    2 => "HQ",
+    3 => "Artem",
+    4 => "Another Store"
+];
+
 // Закрытие соединения
 $conn->close();
 ?>
@@ -278,9 +285,29 @@ $conn->close();
             <tbody>
                 <?php
                 foreach ($expenses_data as $store_id => $categories) {
+                    // Определяем имя магазина на основе ID
+                    $store_name = '';
+                    switch ($store_id) {
+                        case 1:
+                            $store_name = 'Techpower';
+                            break;
+                        case 2:
+                            $store_name = 'HQ';
+                            break;
+                        case 3:
+                            $store_name = 'Artem';
+                            break;
+                        case 4:
+                            $store_name = 'Another Store';
+                            break;
+                        default:
+                            $store_name = 'Unknown Store';
+                            break;
+                    }
+                    
                     foreach ($categories as $category => $expense) {
                         echo "<tr>";
-                        echo "<td>" . htmlspecialchars($store_id) . "</td>";
+                        echo "<td>" . htmlspecialchars($store_name) . "</td>";
                         echo "<td>" . htmlspecialchars($category) . "</td>";
                         echo "<td>$" . htmlspecialchars(number_format($expense, 2)) . "</td>";
                         echo "</tr>";
