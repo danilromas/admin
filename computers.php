@@ -216,6 +216,7 @@
                     }
                     echo '</ul>';
 
+                    echo '<p class="price">Cost Price: ' . htmlspecialchars(number_format($computerRow['base_price'], 2)) . ' руб.</p>';
                     echo '<p class="price">Final Price: ' . htmlspecialchars($computerRow['final_price']) . ' руб.</p>';
                     // Доступность
 

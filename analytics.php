@@ -8,13 +8,7 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-$conn->set_charset("utf8mb4"); // Установите кодировку
-
-// Установка кодировки
-if (!$conn->set_charset("utf8mb4")) {
-    printf("Error loading character set utf8mb4: %s\n", $conn->error);
-    exit();
-}
+$conn->set_charset("utf8mb4"); // Установка кодировки
 
 // Получение дат из GET-параметров
 $start_date = isset($_GET['start_date']) ? $_GET['start_date'] : '1970-01-01';
@@ -83,19 +77,19 @@ if ($result_components === false) {
     die("Error executing components statement: " . $stmt_components->error);
 }
 
-$total_expenses = 0;
 $components_data = [];
+$total_quantity = 0;
+$total_cost = 0;
+
 while ($row = $result_components->fetch_assoc()) {
     $component_name = htmlspecialchars($row['component_name']);
-    $total_quantity = $row['total_quantity'];
-    $total_cost = $row['total_cost'];
-
-    $total_expenses += $total_cost;
+    $total_quantity += $row['total_quantity'];
+    $total_cost += floatval($row['total_cost']); // Преобразование в float и суммирование
 
     $components_data[] = [
         'name' => $component_name,
-        'quantity' => $total_quantity,
-        'cost' => number_format($total_cost, 2)
+        'quantity' => $row['total_quantity'],
+        'cost' => number_format($row['total_cost'], 2)
     ];
 }
 
@@ -120,8 +114,18 @@ if ($result_expenses === false) {
 }
 
 $expenses_data = [];
+$total_expense = 0;
+$store_totals = [];
+
+// Обработка данных о расходах
 while ($row = $result_expenses->fetch_assoc()) {
-    $expenses_data[$row['store_id']][$row['category']] = $row['total_expense'];
+    $store_id = $row['store_id'];
+    $category = htmlspecialchars($row['category']);
+    $expense = floatval($row['total_expense']);
+
+    $expenses_data[$store_id][$category] = $expense;
+    $store_totals[$store_id] = ($store_totals[$store_id] ?? 0) + $expense;
+    $total_expense += $expense;
 }
 
 $store_names = [
@@ -271,13 +275,20 @@ $conn->close();
                 }
                 ?>
             </tbody>
+            <tfoot>
+                <tr>
+                    <td><strong>Total</strong></td>
+                    <td><strong><?php echo htmlspecialchars($total_quantity); ?></strong></td>
+                    <td><strong>$<?php echo htmlspecialchars(number_format($total_cost, 2)); ?></strong></td>
+                </tr>
+            </tfoot>
         </table>
 
         <h2>Store Expenses</h2>
         <table>
             <thead>
                 <tr>
-                    <th>Store ID</th>
+                    <th>Store Name</th>
                     <th>Category</th>
                     <th>Total Expense</th>
                 </tr>
@@ -286,25 +297,9 @@ $conn->close();
                 <?php
                 foreach ($expenses_data as $store_id => $categories) {
                     // Определяем имя магазина на основе ID
-                    $store_name = '';
-                    switch ($store_id) {
-                        case 1:
-                            $store_name = 'Techpower';
-                            break;
-                        case 2:
-                            $store_name = 'HQ';
-                            break;
-                        case 3:
-                            $store_name = 'Artem';
-                            break;
-                        case 4:
-                            $store_name = 'Another Store';
-                            break;
-                        default:
-                            $store_name = 'Unknown Store';
-                            break;
-                    }
+                    $store_name = isset($store_names[$store_id]) ? $store_names[$store_id] : 'Unknown Store';
                     
+                    // Распечатываем расходы по категориям для текущего магазина
                     foreach ($categories as $category => $expense) {
                         echo "<tr>";
                         echo "<td>" . htmlspecialchars($store_name) . "</td>";
@@ -312,9 +307,22 @@ $conn->close();
                         echo "<td>$" . htmlspecialchars(number_format($expense, 2)) . "</td>";
                         echo "</tr>";
                     }
+
+                    // Распечатываем общую сумму расходов для текущего магазина
+                    echo "<tr>";
+                    echo "<td><strong>" . htmlspecialchars($store_name) . " Total</strong></td>";
+                    echo "<td><strong>Total</strong></td>";
+                    echo "<td><strong>$" . htmlspecialchars(number_format($store_totals[$store_id], 2)) . "</strong></td>";
+                    echo "</tr>";
                 }
                 ?>
             </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="2"><strong>Grand Total</strong></td>
+                    <td><strong>$<?php echo number_format($total_expense, 2); ?></strong></td>
+                </tr>
+            </tfoot>
         </table>
 
         <div class="charts">

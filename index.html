@@ -90,7 +90,7 @@
                         <div class="status">
                             <div class="info">
                                 <h3>Total Sales</h3>
-                                <h1 id="total-sales">$0</h1>
+                                <h1 id="total-sales">0</h1>
                             </div>
                             <div class="progresss">
                                 <svg>
@@ -105,15 +105,15 @@
                     <div class="visits">
                         <div class="status">
                             <div class="info">
-                                <h3>Site Visit</h3>
-                                <h1 id="total-visits">0</h1>
+                                <h3>Total Revenue</h3>
+                                <h1 id="total-revenue">$0</h1>
                             </div>
                             <div class="progresss">
                                 <svg>
-                                    <circle cx="38" cy="38" r="36" id="visits-circle"></circle>
+                                    <circle cx="38" cy="38" r="36" id="revenue-circle"></circle>
                                 </svg>
                                 <div class="percentage">
-                                    <p id="visits-percentage">0%</p>
+                                    <p id="revenue-percentage">0%</p>
                                 </div>
                             </div>
                         </div>
@@ -121,15 +121,15 @@
                     <div class="searches">
                         <div class="status">
                             <div class="info">
-                                <h3>Searches</h3>
-                                <h1 id="total-searches">0</h1>
+                                <h3>Total Markup</h3>
+                                <h1 id="total-markup">$0</h1>
                             </div>
                             <div class="progresss">
                                 <svg>
-                                    <circle cx="38" cy="38" r="36" id="searches-circle"></circle>
+                                    <circle cx="38" cy="38" r="36" id="markup-circle"></circle>
                                 </svg>
                                 <div class="percentage">
-                                    <p id="searches-percentage">0%</p>
+                                    <p id="markup-percentage">0%</p>
                                 </div>
                             </div>
                         </div>
@@ -141,21 +141,20 @@
                             .then(response => response.json())
                             .then(data => {
                                 // Update total sales
-                                document.getElementById('total-sales').innerText = `$${data.totalSales}`;
-                                document.getElementById('sales-percentage').innerText = `${data.salesPercentageChange}%`;
-                                
-                                // Update total visits
-                                document.getElementById('total-visits').innerText = data.totalVisits;
-                                document.getElementById('visits-percentage').innerText = `${data.visitsPercentageChange}%`;
-                                
-                                // Update total searches
-                                document.getElementById('total-searches').innerText = data.totalSearches;
-                                document.getElementById('searches-percentage').innerText = `${data.searchesPercentageChange}%`;
+                                document.getElementById('total-sales').innerText = `${data.totalSales}`;
+                                document.getElementById('total-revenue').innerText = `${data.totalRevenue} руб`;
+                                document.getElementById('total-markup').innerText = `${data.totalMarkup} руб`;
                                 
                                 // Update progress circles (dummy example with fixed percentages)
-                                document.getElementById('sales-circle').style.strokeDasharray = `${data.salesPercentageChange * 2.28}, 228`;
-                                document.getElementById('visits-circle').style.strokeDasharray = `${Math.abs(data.visitsPercentageChange) * 2.28}, 228`;
-                                document.getElementById('searches-circle').style.strokeDasharray = `${data.searchesPercentageChange * 2.28}, 228`;
+                                // These percentage values can be dynamically calculated if needed
+                                document.getElementById('sales-circle').style.strokeDasharray = `${data.totalSales / 1000 * 2.28}, 228`;
+                                document.getElementById('revenue-circle').style.strokeDasharray = `${data.totalRevenue / 1000 * 2.28}, 228`;
+                                document.getElementById('markup-circle').style.strokeDasharray = `${data.totalMarkup / 1000 * 2.28}, 228`;
+                                
+                                // Dummy percentage calculations
+                                document.getElementById('sales-percentage').innerText = `${(data.totalSales / 1000 * 100).toFixed(2)}%`;
+                                document.getElementById('revenue-percentage').innerText = `${(data.totalRevenue / 1000 * 100).toFixed(2)}%`;
+                                document.getElementById('markup-percentage').innerText = `${(data.totalMarkup / 1000 * 100).toFixed(2)}%`;
                             })
                             .catch(error => console.error('Error fetching analytics data:', error));
                     });

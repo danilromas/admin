@@ -1,45 +1,71 @@
 <?php
-require 'config.php';  // Подключение файла конфигурации
+require 'config.php';
 
+$conn = new mysqli($db_config['servername'], $db_config['username'], $db_config['password'], $db_config['dbname']);
 
-$dsn = "mysql:host=$host;dbname=$db;charset=utf8mb4";
-$options = [
-    PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-    PDO::ATTR_EMULATE_PREPARES   => false,
-];
-
-try {
-    $pdo = new PDO($dsn, $user, $pass, $options);
-} catch (\PDOException $e) {
-    throw new \PDOException($e->getMessage(), (int)$e->getCode());
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
 }
 
-// Fetch total sales
-$stmt = $pdo->query("SELECT SUM(total_price) as total_sales FROM orders WHERE status != 'отказ'");
-$totalSales = $stmt->fetchColumn();
+$conn->set_charset("utf8mb4");
 
-// Fetch total site visits (for demonstration purposes, we use a static value)
-$totalVisits = 24981; 
+// Получаем даты из GET-параметров
+$start_date = isset($_GET['start_date']) ? $_GET['start_date'] : '1970-01-01';
+$end_date = isset($_GET['end_date']) ? $_GET['end_date'] : date('Y-m-d');
 
-// Fetch total searches (for demonstration purposes, we use a static value)
-$totalSearches = 14147;
+// Получение данных о заказах
+$sql_orders = "
+    SELECT
+        comp.shop AS store,
+        COUNT(o.id) AS total_sold,
+        SUM(o.total_price) AS total_revenue,
+        SUM(o.total_price - comp.base_price) AS total_markup
+    FROM orders o
+    JOIN computers comp ON o.computer_id = comp.id
+    WHERE o.status = 'куплен' AND o.date BETWEEN ? AND ?
+    GROUP BY comp.shop";
+$stmt_orders = $conn->prepare($sql_orders);
+$stmt_orders->bind_param("ss", $start_date, $end_date);
+$stmt_orders->execute();
+$result_orders = $stmt_orders->get_result();
 
-// Fetch sales percentage change (dummy value for demonstration)
-$salesPercentageChange = 81;
+$total_sales = 0;
+$total_revenue = 0;
+$total_markup = 0;
 
-// Fetch visits percentage change (dummy value for demonstration)
-$visitsPercentageChange = -48;
+while ($row = $result_orders->fetch_assoc()) {
+    $total_sales += $row['total_sold'];
+    $total_revenue += $row['total_revenue'];
+    $total_markup += $row['total_markup'];
+}
 
-// Fetch searches percentage change (dummy value for demonstration)
-$searchesPercentageChange = 21;
+// Получение данных о расходах
+$sql_expenses = "
+    SELECT
+        store_id,
+        SUM(amount) AS total_expense
+    FROM expenses
+    WHERE date BETWEEN ? AND ?
+    GROUP BY store_id";
+$stmt_expenses = $conn->prepare($sql_expenses);
+$stmt_expenses->bind_param("ss", $start_date, $end_date);
+$stmt_expenses->execute();
+$result_expenses = $stmt_expenses->get_result();
 
-echo json_encode([
-    'totalSales' => $totalSales,
-    'totalVisits' => $totalVisits,
-    'totalSearches' => $totalSearches,
-    'salesPercentageChange' => $salesPercentageChange,
-    'visitsPercentageChange' => $visitsPercentageChange,
-    'searchesPercentageChange' => $searchesPercentageChange,
-]);
+$total_expenses = 0;
+while ($row = $result_expenses->fetch_assoc()) {
+    $total_expenses += $row['total_expense'];
+}
+
+// Формируем ответ в формате JSON
+$response = [
+    'totalSales' => $total_sales,
+    'totalRevenue' => $total_revenue,
+    'totalMarkup' => $total_markup,
+    'totalExpenses' => $total_expenses
+];
+
+echo json_encode($response);
+
+$conn->close();
 ?>

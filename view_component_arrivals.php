@@ -1,7 +1,6 @@
 <?php
 require 'config.php';  // Подключение файла конфигурации
 
-
 $conn = new mysqli($db_config['servername'], $db_config['username'], $db_config['password'], $db_config['dbname']);
 
 if ($conn->connect_error) {
@@ -66,11 +65,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
-// Получение данных о поступлениях компонентов
+// Получение данных о поступлениях компонентов, отображаем только те, что в пути
 $sql_arrivals = "
     SELECT ca.id, c.name AS component_name, ca.quantity, ca.price, ca.arrival_date, ca.status
     FROM component_arrivals ca
     JOIN components c ON ca.component_id = c.id
+    WHERE ca.status = 'in_transit'
     ORDER BY ca.arrival_date DESC
 ";
 $result_arrivals = $conn->query($sql_arrivals);
