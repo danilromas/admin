@@ -1,3 +1,14 @@
+
+
+
+
+
+<?php
+require 'auth.php';
+check_login();
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 

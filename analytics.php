@@ -1,4 +1,11 @@
 <?php
+require 'auth.php';
+check_login();
+check_role(['manager', 'admin']);
+?>
+
+
+<?php
 // Подключение к базе данных
 require 'config.php';
 
