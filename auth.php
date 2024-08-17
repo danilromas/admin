@@ -1,11 +1,11 @@
-<?php
+<!-- 
 require 'config.php';
 
 // Пример создания пользователей
 $users = [
-    ['username' => 'admin', 'password' => password_hash('admin_password', PASSWORD_DEFAULT), 'role' => 'admin'],
-    ['username' => 'manager', 'password' => password_hash('manager_password', PASSWORD_DEFAULT), 'role' => 'manager'],
-    ['username' => 'assembler', 'password' => password_hash('assembler_password', PASSWORD_DEFAULT), 'role' => 'assembler'],
+    ['username' => 'admin', 'password' => password_hash('Bracchium7', PASSWORD_DEFAULT), 'role' => 'admin'],
+    ['username' => 'manager', 'password' => password_hash('Print0City', PASSWORD_DEFAULT), 'role' => 'manager'],
+    ['username' => 'assembler', 'password' => password_hash('Horse5Good', PASSWORD_DEFAULT), 'role' => 'assembler'],
 ];
 
 $conn = new mysqli($db_config['servername'], $db_config['username'], $db_config['password'], $db_config['dbname']);
@@ -21,37 +21,13 @@ foreach ($users as $user) {
     $stmt->bind_param("sss", $user['username'], $user['password'], $user['role']);
     $stmt->execute();
 }
-
-
-$conn->close();
-?>
+$conn->close(); 
+?> -->
 
 <?php
-// auth.php
-session_start();
+session_start(); // Убедитесь, что session_start() вызывается в начале файла
 
-if (!function_exists('check_login')) {
-    function check_login() {
-        if (!isset($_SESSION['user_id'])) {
-            header("Location: login.php");
-            exit();
-        }
-    }
-}
-
-if (!function_exists('check_role')) {
-    function check_role($required_role) {
-        if ($_SESSION['role'] !== $required_role) {
-            header("Location: index.php");
-            exit();
-        }
-    }
-}
-
-
-// auth.php
-session_start();
-
+// Функция проверки логина
 function check_login() {
     if (!isset($_SESSION['user_id'])) {
         header("Location: login.php");
@@ -59,16 +35,16 @@ function check_login() {
     }
 }
 
+// Функция проверки роли
 function check_role($allowed_roles) {
-    // Преобразуем $allowed_roles в массив, если передано одно значение
     if (!is_array($allowed_roles)) {
         $allowed_roles = [$allowed_roles];
     }
 
-    // Проверяем, находится ли текущая роль пользователя в списке разрешённых ролей
-    if (!in_array($_SESSION['role'], $allowed_roles)) {
-        header("Location: index.php");
-        exit();
+    // Проверка наличия роли пользователя в списке разрешённых ролей
+    if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $allowed_roles)) {
+        return false; // Роль не соответствует
     }
+    return true; // Роль соответствует
 }
 ?>

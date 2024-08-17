@@ -1,14 +1,8 @@
-
-
-
-
-
 <?php
 require 'auth.php';
 check_login();
+$is_admin = check_role(['admin', 'manager', 'assembler']);
 ?>
-
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -84,7 +78,7 @@ check_login();
                         <span class="material-icons-sharp">mail_outline</span>
                         <h3>Добавление расходов</h3>
                     </a>
-                    <a href="#">
+                    <a href="logout.php">
                         <span class="material-icons-sharp">logout</span>
                         <h3>Logout</h3>
                     </a>
@@ -95,8 +89,9 @@ check_login();
             <!-- Main Content -->
             <main>
                 <h1>Analytics</h1>
-                <!-- Analyses -->
-                <div class="analyse">
+                <?php if ($is_admin == check_role(['admin'])): ?>
+                                <!-- Analyses -->
+                                <div class="analyse">
                     <div class="sales">
                         <div class="status">
                             <div class="info">
@@ -172,6 +167,7 @@ check_login();
                 </script>
             
                 <!-- End of Analyses -->
+                <?php endif; ?>
 
                 <!-- Recent Orders Table -->
                 <div class="recent-orders">
@@ -195,12 +191,16 @@ check_login();
                 <!-- End of Recent Orders -->
 
                 <!-- Sales Charts Section -->
-                <div class="charts">
+                <?php if ($is_admin == check_role(['admin'])): ?>
+                    <div class="charts">
                     <h2>Sales Charts</h2>
                     <canvas id="salesChart"></canvas>
                     <canvas id="profitChart"></canvas>
                 </div>
                 <!-- End of Sales Charts Section -->
+                <?php endif; ?>
+
+                
 
             </main>
             <!-- End of Main Content -->
@@ -229,10 +229,8 @@ check_login();
         </div>
     </div>
 
-
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="orders.js"></script>
     <script src="index.js"></script>
 </body>
-
 </html>

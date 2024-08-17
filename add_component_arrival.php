@@ -1,4 +1,10 @@
 <?php
+require 'auth.php';
+check_login();
+check_role(['admin']);
+?>
+
+<?php
 require 'config.php';  // Подключение файла конфигурации
 
 

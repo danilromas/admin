@@ -1,3 +1,21 @@
+<?php
+require 'auth.php'; // Подключение функции проверки авторизации
+check_login();     // Проверка, что пользователь авторизован
+$is_admin = check_role(['admin', 'manager', 'assembler']);
+
+require 'config.php';  // Подключение файла конфигурации
+
+// Создание соединения
+$conn = new mysqli($db_config['servername'], $db_config['username'], $db_config['password'], $db_config['dbname']);
+
+// Проверка соединения
+$conn->set_charset("utf8mb4");
+
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -142,18 +160,6 @@
 <body>
 <a href="index.html" class="back-button">Back to Index</a>
     <?php
-    require 'config.php';  // Подключение файла конфигурации
-
-    // Создание соединения
-    $conn = new mysqli($db_config['servername'], $db_config['username'], $db_config['password'], $db_config['dbname']);
-
-    // Проверка соединения
-    $conn->set_charset("utf8mb4");
-
-    if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error);
-    }
-
     // Запрос для получения уникальных магазинов
     $shopsQuery = "SELECT DISTINCT shop FROM computers ORDER BY shop";
     $shopsResult = $conn->query($shopsQuery);
@@ -199,8 +205,6 @@
                         'Case' => $computerRow['case_id']
                     ];
 
-            
-
                     foreach ($components as $type => $id) {
                         $query = "SELECT name, price FROM components WHERE id = ?";
                         $stmt = $conn->prepare($query);
@@ -216,16 +220,20 @@
                     }
                     echo '</ul>';
 
+                    if ($is_admin == check_role(['admin'])){
                     echo '<p class="price">Cost Price: ' . htmlspecialchars(number_format($computerRow['base_price'], 2)) . ' руб.</p>';
+                    echo '<p class="price">Markup: ' . htmlspecialchars(number_format($computerRow['markup'], 2)) . ' руб.</p>';
+                    };
                     echo '<p class="price">Final Price: ' . htmlspecialchars($computerRow['final_price']) . ' руб.</p>';
-                    // Доступность
 
                     // Кнопки редактирования, удаления и продажи
                     echo '<div class="buttons">';
-                    echo '<form action="edit_computer.php" method="get">';
-                    echo '<input type="hidden" name="id" value="' . htmlspecialchars($computerRow['id']) . '">';
-                    echo '<button type="submit" class="edit-button">Edit</button>';
-                    echo '</form>';
+                    if ($is_admin == check_role(['admin'])) { // Проверка, является ли пользователь администратором
+                        echo '<form action="edit_computer.php" method="get">';
+                        echo '<input type="hidden" name="id" value="' . htmlspecialchars($computerRow['id']) . '">';
+                        echo '<button type="submit" class="edit-button">Edit</button>';
+                        echo '</form>';
+                    }
 
                     echo '<form action="delete_computer.php" method="post">';
                     echo '<input type="hidden" name="id" value="' . htmlspecialchars($computerRow['id']) . '">';

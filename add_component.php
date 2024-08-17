@@ -1,4 +1,15 @@
 <?php
+require 'auth.php';
+check_login(); // Проверяет, авторизован ли пользователь
+
+$is_admin = check_role(['admin']); // Проверяет, имеет ли пользователь роль администратора
+
+if (!$is_admin) {
+    header("Location: index.php"); // Перенаправление, если роль не соответствует
+    exit();
+}
+
+
 require 'config.php';  // Подключение файла конфигурации
 
 

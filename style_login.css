@@ -1,0 +1,74 @@
+/* Общие стили для всей страницы */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f9;
+    margin: 0;
+    padding: 0;
+}
+
+/* Контейнер для формы входа */
+.login-container {
+    width: 100%;
+    max-width: 400px;
+    margin: 100px auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Заголовок формы */
+.login-container h2 {
+    margin-top: 0;
+    color: #333;
+    text-align: center;
+}
+
+/* Стили для формы */
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Стили для элементов формы */
+label {
+    font-size: 14px;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+input[type="text"],
+input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+/* Стили для кнопки отправки */
+button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+/* Стили для сообщения об ошибке */
+.error {
+    color: #e74c3c;
+    margin-top: -15px;
+    margin-bottom: 15px;
+    font-size: 14px;
+    text-align: center;
+}
