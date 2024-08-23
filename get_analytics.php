@@ -14,16 +14,18 @@ $start_date = isset($_GET['start_date']) ? $_GET['start_date'] : '1970-01-01';
 $end_date = isset($_GET['end_date']) ? $_GET['end_date'] : date('Y-m-d');
 
 // Получение данных о заказах
+// Запрос на данные о заказах и наценке на компьютеры с учётом магазинов
 $sql_orders = "
     SELECT
         comp.shop AS store,
+        comp.name AS computer_name,
         COUNT(o.id) AS total_sold,
         SUM(o.total_price) AS total_revenue,
-        SUM(o.total_price - comp.base_price) AS total_markup
+        SUM(comp.markup) AS total_markup
     FROM orders o
     JOIN computers comp ON o.computer_id = comp.id
     WHERE o.status = 'куплен' AND o.date BETWEEN ? AND ?
-    GROUP BY comp.shop";
+    GROUP BY comp.shop, comp.name";
 $stmt_orders = $conn->prepare($sql_orders);
 $stmt_orders->bind_param("ss", $start_date, $end_date);
 $stmt_orders->execute();

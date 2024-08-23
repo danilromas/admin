@@ -1,19 +1,4 @@
 <?php
-require 'auth.php';
-check_login(); // Проверяет, авторизован ли пользователь
-
-$is_admin = check_role(['admin']); // Проверяет, имеет ли пользователь роль администратора
-
-if (!$is_admin) {
-    header("Location: index.php"); // Перенаправление, если роль не соответствует
-    exit();
-}
-?>
-
-
-
-
-<?php
 // Подключение к базе данных
 require 'config.php';
 
@@ -36,7 +21,7 @@ $sql_orders = "
         comp.name AS computer_name,
         COUNT(o.id) AS total_sold,
         SUM(o.total_price) AS total_revenue,
-        SUM(o.total_price - comp.base_price) AS total_markup
+        SUM(comp.markup) AS total_markup
     FROM orders o
     JOIN computers comp ON o.computer_id = comp.id
     WHERE o.status = 'куплен' AND o.date BETWEEN ? AND ?
@@ -154,6 +139,7 @@ $store_names = [
 $conn->close();
 ?>
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -239,8 +225,8 @@ $conn->close();
 
         <h2>Order Information</h2>
         <p>Total Orders: <?php echo htmlspecialchars($total_sold); ?></p>
-        <p>Total Revenue: $<?php echo htmlspecialchars(number_format($total_revenue, 2)); ?></p>
-        <p>Total Markup (Profit): $<?php echo htmlspecialchars(number_format($total_markup, 2)); ?></p>
+        <p>Total Revenue: <?php echo htmlspecialchars(number_format($total_revenue, 2)); ?> руб</p>
+        <p>Total Markup (Profit): <?php echo htmlspecialchars(number_format($total_markup, 2)); ?> руб</p>
 
         <h2>Sold Computers by Store</h2>
         <table>
@@ -261,8 +247,8 @@ $conn->close();
                         echo "<td>" . htmlspecialchars($store) . "</td>";
                         echo "<td>" . htmlspecialchars($computer_name) . "</td>";
                         echo "<td>" . htmlspecialchars($total_sold) . "</td>";
-                        echo "<td>$" . htmlspecialchars(number_format($data['revenue'][$computer_name], 2)) . "</td>";
-                        echo "<td>$" . htmlspecialchars(number_format($data['markup'][$computer_name], 2)) . "</td>";
+                        echo "<td>" . htmlspecialchars(number_format($data['revenue'][$computer_name], 2)) . " руб</td>";
+                        echo "<td>" . htmlspecialchars(number_format($data['markup'][$computer_name], 2)) . " руб</td>";
                         echo "</tr>";
                     }
                 }
@@ -285,7 +271,7 @@ $conn->close();
                     echo "<tr>";
                     echo "<td>" . htmlspecialchars($component['name']) . "</td>";
                     echo "<td>" . htmlspecialchars($component['quantity']) . "</td>";
-                    echo "<td>$" . htmlspecialchars($component['cost']) . "</td>";
+                    echo "<td>" . htmlspecialchars($component['cost']) . " руб</td>";
                     echo "</tr>";
                 }
                 ?>
@@ -294,7 +280,7 @@ $conn->close();
                 <tr>
                     <td><strong>Total</strong></td>
                     <td><strong><?php echo htmlspecialchars($total_quantity); ?></strong></td>
-                    <td><strong>$<?php echo htmlspecialchars(number_format($total_cost, 2)); ?></strong></td>
+                    <td><strong><?php echo htmlspecialchars(number_format($total_cost, 2)); ?>руб.</strong></td>
                 </tr>
             </tfoot>
         </table>
@@ -319,7 +305,7 @@ $conn->close();
                         echo "<tr>";
                         echo "<td>" . htmlspecialchars($store_name) . "</td>";
                         echo "<td>" . htmlspecialchars($category) . "</td>";
-                        echo "<td>$" . htmlspecialchars(number_format($expense, 2)) . "</td>";
+                        echo "<td>" . htmlspecialchars(number_format($expense, 2)) . " руб</td>";
                         echo "</tr>";
                     }
 
@@ -327,7 +313,7 @@ $conn->close();
                     echo "<tr>";
                     echo "<td><strong>" . htmlspecialchars($store_name) . " Total</strong></td>";
                     echo "<td><strong>Total</strong></td>";
-                    echo "<td><strong>$" . htmlspecialchars(number_format($store_totals[$store_id], 2)) . "</strong></td>";
+                    echo "<td><strong>" . htmlspecialchars(number_format($store_totals[$store_id], 2)) . "руб</strong></td>";
                     echo "</tr>";
                 }
                 ?>
@@ -335,7 +321,7 @@ $conn->close();
             <tfoot>
                 <tr>
                     <td colspan="2"><strong>Grand Total</strong></td>
-                    <td><strong>$<?php echo number_format($total_expense, 2); ?></strong></td>
+                    <td><strong><?php echo number_format($total_expense, 2); ?> руб</strong></td>
                 </tr>
             </tfoot>
         </table>

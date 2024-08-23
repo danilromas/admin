@@ -35,46 +35,45 @@ $result = $conn->query($sql);
 
 if ($result) {
     while ($row = $result->fetch_assoc()) {
-        $components[$row['category']][] = $row;
+        $components[$row['category']][$row['id']] = $row;
     }
 }
 
 // Расчет итоговой цены на основе выбранных компонентов и добавления markup
-function calculateFinalPrice($componentIds, $components, $markup) {
+function calculateFinalPrice($componentIds, $components, $markup, $additionalPrice) {
     $totalPrice = 0.0;
     foreach ($componentIds as $componentId) {
         if (empty($componentId)) continue; // Пропустить, если ID пустой
         foreach ($components as $category => $compList) {
-            foreach ($compList as $component) {
-                if ($component['id'] == $componentId) {
-                    $totalPrice += $component['price'];
-                    break 2; // Выйти из обоих циклов foreach
-                }
+            if (isset($compList[$componentId])) {
+                $totalPrice += $compList[$componentId]['price'];
+                break; // Выйти из текущего цикла
             }
         }
     }
-    return $totalPrice + $markup;
+    return $totalPrice + $markup + $additionalPrice;
 }
 
 // Определяем ID выбранных компонентов
 $selectedComponentIds = [
-    $computer['motherboard_id'],
-    $computer['processor_id'],
-    $computer['ram_id'],
-    $computer['gpu_id'],
-    $computer['psu_id'],
-    $computer['ssd_id'],
-    $computer['hdd_id'],
-    $computer['case_id'],
-    $computer['cpu_cooler_id'],
-    $computer['extra_cooler_id'],
+    $computer['motherboard_id'] ?? 0,
+    $computer['processor_id'] ?? 0,
+    $computer['ram_id'] ?? 0,
+    $computer['gpu_id'] ?? 0,
+    $computer['psu_id'] ?? 0,
+    $computer['ssd_id'] ?? 0,
+    $computer['hdd_id'] ?? 0,
+    $computer['case_id'] ?? 0,
+    $computer['cpu_cooler_id'] ?? 0,
+    $computer['extra_cooler_id'] ?? 0,
 ];
 
-// Добавляем markup к финальной цене
-$markup = floatval($computer['markup']);
+// Добавляем markup и цену дополнений к финальной цене
+$markup = floatval($computer['markup'] ?? 0);
+$additionalPrice = floatval($computer['additional_price'] ?? 0); // Предполагаем, что цена дополнений хранится в этой колонке
 
 // Пересчитываем итоговую цену
-$finalPrice = calculateFinalPrice($selectedComponentIds, $components, $markup);
+$finalPrice = calculateFinalPrice($selectedComponentIds, $components, $markup, $additionalPrice);
 
 // Функция для генерации HTML опций
 function generateOptions($components, $type, $selectedId) {
@@ -163,7 +162,8 @@ $conn->close();
                             .then(data => {
                                 totalPrice += parseFloat(data.price);
                                 const markup = <?php echo $markup; ?>;
-                                finalPriceInput.value = (totalPrice + markup).toFixed(2);
+                                const additionalPrice = <?php echo $additionalPrice; ?>;
+                                finalPriceInput.value = (totalPrice + markup + additionalPrice).toFixed(2);
                             })
                             .catch(error => console.error('Error:', error));
                     }
@@ -261,6 +261,9 @@ $conn->close();
 
             <label for="additional">Additional Components:</label>
             <textarea id="additional" name="additional"><?php echo htmlspecialchars($computer['additional'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
+
+            <label for="additional_price">Additional Price:</label>
+            <input type="number" id="additional_price" name="additional_price" value="<?php echo htmlspecialchars($computer['additional_price'] ?? '0'); ?>" step="0.01">
 
             <label for="final_price">Final Price:</label>
             <input type="number" id="final_price" name="final_price" value="<?php echo htmlspecialchars($finalPrice); ?>" step="0.01" readonly>

@@ -13,10 +13,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['update_status'])) {
         $order_id = intval($_POST['order_id']);
         $status = $conn->real_escape_string($_POST['status']);
+        $additional_price = floatval($_POST['additional_price']); // Получаем значение из формы
 
-        $sql = "UPDATE orders SET status = ? WHERE id = ?";
+        // Предположим, что final_price рассчитывается как additional_price + начальная стоимость
+        $base_price_query = "SELECT total_price FROM orders WHERE id = ?";
+        $stmt = $conn->prepare($base_price_query);
+        $stmt->bind_param("i", $order_id);
+        $stmt->execute();
+        $stmt->bind_result($current_total_price);
+        $stmt->fetch();
+        $stmt->close();
+
+        // Обновляем total_price
+        $final_price = $current_total_price + $additional_price;
+
+        // Обновление статуса и final_price
+        $sql = "UPDATE orders SET status = ?, total_price = ? WHERE id = ?";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("si", $status, $order_id);
+        $stmt->bind_param("sdi", $status, $final_price, $order_id);
 
         if ($stmt->execute()) {
             echo "<p>Order status updated successfully.</p>";
@@ -66,7 +80,7 @@ $sql = "
         o.delivery,
         o.additional,
         o.additional_price,
-        o.total_price,
+        o.total_price AS total_price,  -- Убедитесь, что total_price используется
         o.status,
         c.name AS computer_name,
         c.shop AS shop_name,
@@ -230,7 +244,7 @@ input[type="submit"]:hover {
 </head>
 <body>
 <body>
-    <h2>Orders</h2>
+<h2>Orders</h2>
     <table>
         <tr>
             <th><a href="?order_by=id&sort=<?php echo $sort === 'ASC' ? 'DESC' : 'ASC'; ?>">ID <i class="fas fa-sort<?php echo $order_by === 'id' ? ($sort === 'ASC' ? '' : '-desc') : ''; ?>"></i></a></th>
@@ -240,59 +254,59 @@ input[type="submit"]:hover {
             <th><a href="?order_by=delivery&sort=<?php echo $sort === 'ASC' ? 'DESC' : 'ASC'; ?>">Delivery <i class="fas fa-sort<?php echo $order_by === 'delivery' ? ($sort === 'ASC' ? '' : '-desc') : ''; ?>"></i></a></th>
             <th><a href="?order_by=additional&sort=<?php echo $sort === 'ASC' ? 'DESC' : 'ASC'; ?>">Additional <i class="fas fa-sort<?php echo $order_by === 'additional' ? ($sort === 'ASC' ? '' : '-desc') : ''; ?>"></i></a></th>
             <th><a href="?order_by=additional_price&sort=<?php echo $sort === 'ASC' ? 'DESC' : 'ASC'; ?>">Additional Price <i class="fas fa-sort<?php echo $order_by === 'additional_price' ? ($sort === 'ASC' ? '' : '-desc') : ''; ?>"></i></a></th>
-            <th><a href="?order_by=total_price&sort=<?php echo $sort === 'ASC' ? 'DESC' : 'ASC'; ?>">Total Price <i class="fas fa-sort<?php echo $order_by === 'total_price' ? ($sort === 'ASC' ? '' : '-desc') : ''; ?>"></i></a></th>
+            <th><a href="?order_by=total_price&sort=<?php echo $sort === 'ASC' ? 'DESC' : 'ASC'; ?>">Final Price <i class="fas fa-sort<?php echo $order_by === 'total_price' ? ($sort === 'ASC' ? '' : '-desc') : ''; ?>"></i></a></th> <!-- Изменено на Final Price -->
             <th><a href="?order_by=status&sort=<?php echo $sort === 'ASC' ? 'DESC' : 'ASC'; ?>">Status <i class="fas fa-sort<?php echo $order_by === 'status' ? ($sort === 'ASC' ? '' : '-desc') : ''; ?>"></i></a></th>
             <th><a href="?order_by=computer_name&sort=<?php echo $sort === 'ASC' ? 'DESC' : 'ASC'; ?>">Computer <i class="fas fa-sort<?php echo $order_by === 'computer_name' ? ($sort === 'ASC' ? '' : '-desc') : ''; ?>"></i></a></th>
             <th><a href="?order_by=shop_name&sort=<?php echo $sort === 'ASC' ? 'DESC' : 'ASC'; ?>">Shop <i class="fas fa-sort<?php echo $order_by === 'shop_name' ? ($sort === 'ASC' ? '' : '-desc') : ''; ?>"></i></a></th>
             <th>Actions</th>
             <th>Status</th>
         </tr>
-        <?php while ($row = $result->fetch_assoc()) { ?>
+                <?php while ($row = $result->fetch_assoc()) { ?>
             <tr>
-                <td><?php echo htmlspecialchars($row['order_id']); ?></td>
-                <td><?php echo htmlspecialchars($row['date']); ?></td>
-                <td><?php echo htmlspecialchars($row['order_name']); ?></td>
-                <td><?php echo htmlspecialchars($row['city']); ?></td>
-                <td><?php echo htmlspecialchars($row['delivery']); ?></td>
-                <td><?php echo htmlspecialchars($row['additional']); ?></td>
-                <td><?php echo htmlspecialchars($row['additional_price']); ?></td>
-                <td><?php echo htmlspecialchars($row['total_price']); ?></td>
-                <td><?php echo htmlspecialchars($row['status']); ?></td>
-                <td><?php echo htmlspecialchars($row['computer_name']); ?></td>
-                <td><?php echo htmlspecialchars($row['shop_name']); ?></td>
+                <td><?php echo htmlspecialchars($row['order_id'] ?? ''); ?></td>
+                <td><?php echo htmlspecialchars($row['date'] ?? ''); ?></td>
+                <td><?php echo htmlspecialchars($row['order_name'] ?? ''); ?></td>
+                <td><?php echo htmlspecialchars($row['city'] ?? ''); ?></td>
+                <td><?php echo htmlspecialchars($row['delivery'] ?? ''); ?></td>
+                <td><?php echo htmlspecialchars($row['additional'] ?? ''); ?></td>
+                <td><?php echo htmlspecialchars($row['additional_price'] ?? ''); ?></td>
+                <td><?php echo htmlspecialchars($row['total_price'] ?? ''); ?></td>
+                <td><?php echo htmlspecialchars($row['status'] ?? ''); ?></td>
+                <td><?php echo htmlspecialchars($row['computer_name'] ?? ''); ?></td>
+                <td><?php echo htmlspecialchars($row['shop_name'] ?? ''); ?></td>
                 <td>
-    <ul style="list-style-type: none; padding-left: 0; margin: 0;">
-        <li><strong>Motherboard:</strong> <?php echo htmlspecialchars($row['motherboard_name']); ?></li>
-        <li><strong>Processor:</strong> <?php echo htmlspecialchars($row['processor_name']); ?></li>
-        <li><strong>RAM:</strong> <?php echo htmlspecialchars($row['ram_name']); ?></li>
-        <li><strong>GPU:</strong> <?php echo htmlspecialchars($row['gpu_name']); ?></li>
-        <li><strong>PSU:</strong> <?php echo htmlspecialchars($row['psu_name']); ?></li>
-        <li><strong>SSD:</strong> <?php echo htmlspecialchars($row['ssd_name']); ?></li>
-        <li><strong>HDD:</strong> <?php echo htmlspecialchars($row['hdd_name']); ?></li>
-        <li><strong>Case:</strong> <?php echo htmlspecialchars($row['case_name']); ?></li>
-        <li><strong>CPU Cooler:</strong> <?php echo htmlspecialchars($row['cpu_cooler_name']); ?></li>
-        <li><strong>Extra Cooler:</strong> <?php echo htmlspecialchars($row['extra_cooler_name']); ?></li>
-    </ul>
-        </td>
-        
+                    <ul style="list-style-type: none; padding-left: 0; margin: 0;">
+                        <li><strong>Motherboard:</strong> <?php echo htmlspecialchars($row['motherboard_name'] ?? ''); ?></li>
+                        <li><strong>Processor:</strong> <?php echo htmlspecialchars($row['processor_name'] ?? ''); ?></li>
+                        <li><strong>RAM:</strong> <?php echo htmlspecialchars($row['ram_name'] ?? ''); ?></li>
+                        <li><strong>GPU:</strong> <?php echo htmlspecialchars($row['gpu_name'] ?? ''); ?></li>
+                        <li><strong>PSU:</strong> <?php echo htmlspecialchars($row['psu_name'] ?? ''); ?></li>
+                        <li><strong>SSD:</strong> <?php echo htmlspecialchars($row['ssd_name'] ?? ''); ?></li>
+                        <li><strong>HDD:</strong> <?php echo htmlspecialchars($row['hdd_name'] ?? ''); ?></li>
+                        <li><strong>Case:</strong> <?php echo htmlspecialchars($row['case_name'] ?? ''); ?></li>
+                        <li><strong>CPU Cooler:</strong> <?php echo htmlspecialchars($row['cpu_cooler_name'] ?? ''); ?></li>
+                        <li><strong>Extra Cooler:</strong> <?php echo htmlspecialchars($row['extra_cooler_name'] ?? ''); ?></li>
+                    </ul>
+                </td>
                 <td>
                     <form action="orders.php" method="POST" style="display:inline;">
-                        <input type="hidden" name="order_id" value="<?php echo htmlspecialchars($row['order_id']); ?>">
+                        <input type="hidden" name="order_id" value="<?php echo htmlspecialchars($row['order_id'] ?? ''); ?>">
                         <select name="status" class="status-select">
-                            <option value="принят" <?php echo $row['status'] == 'принят' ? 'selected' : ''; ?>>принят</option>
-                            <option value="собран" <?php echo $row['status'] == 'собран' ? 'selected' : ''; ?>>собран</option>
-                            <option value="отправлен" <?php echo $row['status'] == 'отправлен' ? 'selected' : ''; ?>>отправлен</option>
-                            <option value="куплен" <?php echo $row['status'] == 'куплен' ? 'selected' : ''; ?>>куплен</option>
-                            <option value="отказ" <?php echo $row['status'] == 'отказ' ? 'selected' : ''; ?>>отказ</option>
+                            <option value="принят" <?php echo ($row['status'] ?? '') == 'принят' ? 'selected' : ''; ?>>принят</option>
+                            <option value="собран" <?php echo ($row['status'] ?? '') == 'собран' ? 'selected' : ''; ?>>собран</option>
+                            <option value="отправлен" <?php echo ($row['status'] ?? '') == 'отправлен' ? 'selected' : ''; ?>>отправлен</option>
+                            <option value="куплен" <?php echo ($row['status'] ?? '') == 'куплен' ? 'selected' : ''; ?>>куплен</option>
+                            <option value="отказ" <?php echo ($row['status'] ?? '') == 'отказ' ? 'selected' : ''; ?>>отказ</option>
                         </select>
+                        <input type="hidden" name="additional_price" value="<?php echo htmlspecialchars($row['additional_price'] ?? ''); ?>"> <!-- Добавляем дополнительную цену -->
                         <input type="submit" name="update_status" class="update-status" value="Update Status">
                     </form>
                     <form action="orders.php" method="POST" style="display:inline;">
-                        <input type="hidden" name="order_id" value="<?php echo htmlspecialchars($row['order_id']); ?>">
+                        <input type="hidden" name="order_id" value="<?php echo htmlspecialchars($row['order_id'] ?? ''); ?>">
                         <input type="submit" name="delete_order" class="delete-order" value="Delete" onclick="return confirm('Are you sure you want to delete this order?');">
                     </form>
                     <form action="edit_order.php" method="GET" style="display:inline;">
-                        <input type="hidden" name="id" value="<?php echo htmlspecialchars($row['order_id']); ?>">
+                        <input type="hidden" name="id" value="<?php echo htmlspecialchars($row['order_id'] ?? ''); ?>">
                         <input type="submit" class="edit-order" value="Edit">
                     </form>
                 </td>
