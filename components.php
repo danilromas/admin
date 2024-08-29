@@ -11,6 +11,7 @@ if (!$is_admin) {
     header("Location: index.php"); // Перенаправление, если роль не соответствует
     exit();
 }
+
 $conn = new mysqli($db_config['servername'], $db_config['username'], $db_config['password'], $db_config['dbname']);
 
 if ($conn->connect_error) {
@@ -52,52 +53,11 @@ if (isset($_GET['category'])) {
     $category = $conn->real_escape_string($_GET['category']);
 }
 
-// Построение SQL-запроса
-$sql = "SELECT * FROM components WHERE 1=1";
-
-$params = [];
-$types = '';
-
-if ($search) {
-    $sql .= " AND name LIKE ?";
-    $params[] = '%' . $search . '%';
-    $types .= 's'; // Строковый тип для параметра поиска
-}
-
-if ($category) {
-    $sql .= " AND category = ?";
-    $params[] = $category;
-    $types .= 's'; // Строковый тип для параметра категории
-}
-
-$sql .= " ORDER BY name";
-
-// Подготовка запроса
-$stmt = $conn->prepare($sql);
-if ($stmt === false) {
-    die("Error preparing statement: " . $conn->error);
-}
-
-// Связывание параметров
-if ($params) {
-    $stmt->bind_param($types, ...$params);
-}
-
-$stmt->execute();
-$result = $stmt->get_result();
-
-// Получение средней цены
-// Получение средней цены
+// Построение SQL-запроса для вычисления средней цены
 $sql_avg_price = "
     SELECT
         c.id,
         c.name,
-        c.price AS component_price,
-        c.category,
-        c.photo,
-        c.quantity AS initial_quantity,
-        IFNULL(SUM(ca.price * ca.quantity), 0) AS total_arrival_price,
-        IFNULL(SUM(ca.quantity), 0) AS total_quantity_arrivals,
         CASE
             WHEN (c.quantity - IFNULL(SUM(ca.quantity), 0)) >= 0
             THEN (
@@ -142,16 +102,22 @@ if ($result_avg_price === false) {
     die("Error executing average price statement: " . $stmt_avg_price->error);
 }
 
-// Связывание параметров для среднего запроса
-if ($params_avg_price) {
-    $stmt_avg_price->bind_param($types_avg_price, ...$params_avg_price);
+// Обновление цен в таблице components
+$update_sql = "UPDATE components SET price = ? WHERE id = ?";
+$update_stmt = $conn->prepare($update_sql);
+if ($update_stmt === false) {
+    die("Error preparing update statement: " . $conn->error);
 }
 
-$stmt_avg_price->execute();
-$result_avg_price = $stmt_avg_price->get_result();
-if ($result_avg_price === false) {
-    die("Error executing average price statement: " . $stmt_avg_price->error);
+while ($row = $result_avg_price->fetch_assoc()) {
+    $average_price = $row['average_price'] !== null ? $row['average_price'] : 0;
+
+    $update_stmt->bind_param("di", $average_price, $row['id']);
+    if (!$update_stmt->execute()) {
+        echo "Error updating component price: " . $update_stmt->error;
+    }
 }
+$update_stmt->close();
 
 // Получение всех уникальных категорий
 $categories_sql = "SELECT DISTINCT category FROM components";
@@ -159,6 +125,40 @@ $categories_result = $conn->query($categories_sql);
 if ($categories_result === false) {
     die("Error fetching categories: " . $conn->error);
 }
+
+// Построение SQL-запроса для вывода данных
+$sql = "SELECT * FROM components WHERE 1=1";
+
+$params = [];
+$types = '';
+
+if ($search) {
+    $sql .= " AND name LIKE ?";
+    $params[] = '%' . $search . '%';
+    $types .= 's'; // Строковый тип для параметра поиска
+}
+
+if ($category) {
+    $sql .= " AND category = ?";
+    $params[] = $category;
+    $types .= 's'; // Строковый тип для параметра категории
+}
+
+$sql .= " ORDER BY name";
+
+// Подготовка запроса
+$stmt = $conn->prepare($sql);
+if ($stmt === false) {
+    die("Error preparing statement: " . $conn->error);
+}
+
+// Связывание параметров
+if ($params) {
+    $stmt->bind_param($types, ...$params);
+}
+
+$stmt->execute();
+$result = $stmt->get_result();
 
 $conn->close();
 ?>
@@ -288,24 +288,23 @@ $conn->close();
             </thead>
             <tbody>
                 <?php
-                if ($result_avg_price->num_rows > 0) {
-                    while ($row = $result_avg_price->fetch_assoc()) {
-                        // Обработка null значений для average_price
-                        $average_price = $row['average_price'] !== null ? number_format($row['average_price'], 2) : '0.00';
+                if ($result->num_rows > 0) {
+                    while ($row = $result->fetch_assoc()) {
+                        // Обработка null значений для price
+                        $price = number_format($row['price'], 2);
                         
                         echo "<tr>";
                         echo "<td>" . htmlspecialchars($row['id']) . "</td>";
                         echo "<td>" . htmlspecialchars($row['name']) . "</td>";
-                        echo "<td>" . htmlspecialchars($average_price) . " руб</td>";
+                        echo "<td>" . htmlspecialchars($price) . " руб</td>";
                         echo "<td>" . htmlspecialchars($row['category']) . "</td>";
                         echo "<td><img src='" . htmlspecialchars($row['photo']) . "' alt='Component Photo' class='photo'></td>";
-                        echo "<td>" . htmlspecialchars($row['initial_quantity']) . "</td>";
+                        echo "<td>" . htmlspecialchars($row['quantity']) . "</td>";
                         echo "<td>
                             <a class='btn btn-edit' href='edit_component.php?id=" . htmlspecialchars($row['id']) . "'>Edit</a>
+                            <a class='btn btn-delete' href='components.php?delete_id=" . htmlspecialchars($row['id']) . "' onclick='return confirm(\"Are you sure you want to delete this component?\")'>Delete</a>
                         </td>";
                         echo "</tr>";
-                        /*echo "                            <a class='btn btn-delete' href='components.php?delete_id=" . htmlspecialchars($row['id']) . "' onclick='return confirm(\"Are you sure you want to delete this component?\")'>Delete</a>
-"; */
                     }
                 } else {
                     echo "<tr><td colspan='7'>No components found</td></tr>";
