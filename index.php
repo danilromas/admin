@@ -31,56 +31,56 @@ $is_admin = check_role(['admin', 'manager', 'assembler']);
                 </div>
                 <div class="sidebar">
                     <a href="add_component.html">
-                        <span class="material-icons-sharp">dashboard</span>
-                        <h3>Add Components</h3>
+                        <span class="material-icons-sharp">add_circle_outline</span>
+                        <h3>Добавить компонент</h3>
                     </a>
                     <a href="components.php">
-                        <span class="material-icons-sharp">person_outline</span>
-                        <h3>Components</h3>
+                        <span class="material-icons-sharp">memory</span>
+                        <h3>Компоненты</h3>
                     </a>
                     <a href="add_computer1.php">
-                        <span class="material-icons-sharp">person_outline</span>
-                        <h3>Add computer</h3>
+                        <span class="material-icons-sharp">add_to_photos</span>
+                        <h3>Добавить компьютер</h3>
                     </a>
                     <a href="computers.php">
-                        <span class="material-icons-sharp">receipt_long</span>
-                        <h3>Computers</h3>
+                        <span class="material-icons-sharp">desktop_mac</span>
+                        <h3>Компьютеры</h3>
                     </a>
                     <a href="orders.php">
-                        <span class="material-icons-sharp">mail_outline</span>
-                        <h3>Orders</h3>
+                        <span class="material-icons-sharp">shopping_cart</span>
+                        <h3>Заказы</h3>
                     </a>
                     <a href="report.html">
-                        <span class="material-icons-sharp">mail_outline</span>
-                        <h3>Report</h3>
+                        <span class="material-icons-sharp">bar_chart</span>
+                        <h3>Отчет</h3>
                     </a>
                     <a href="purchased_orders.php">
-                        <span class="material-icons-sharp">mail_outline</span>
+                        <span class="material-icons-sharp">done_outline</span>
                         <h3>Выполненные заказы</h3>
                     </a>
                     <a href="rejected_orders.php">
-                        <span class="material-icons-sharp">mail_outline</span>
-                        <h3>Отказы</h3>
+                        <span class="material-icons-sharp">cancel</span>
+                        <h3>Отмененные заказы</h3>
                     </a>
                     <a href="component_arrivals.php">
-                        <span class="material-icons-sharp">mail_outline</span>
-                        <h3>Добавление прихода</h3>
+                        <span class="material-icons-sharp">local_shipping</span>
+                        <h3>Приход компонентов</h3>
                     </a>
                     <a href="view_component_arrivals.php">
-                        <span class="material-icons-sharp">mail_outline</span>
+                        <span class="material-icons-sharp">visibility</span>
                         <h3>Просмотр прихода</h3>
                     </a>
                     <a href="analytics.php">
-                        <span class="material-icons-sharp">mail_outline</span>
+                        <span class="material-icons-sharp">insights</span>
                         <h3>Аналитика</h3>
                     </a>
                     <a href="add_expense.php">
-                        <span class="material-icons-sharp">mail_outline</span>
-                        <h3>Добавление расходов</h3>
+                        <span class="material-icons-sharp">account_balance_wallet</span>
+                        <h3>Добавить расходы</h3>
                     </a>
                     <a href="logout.php">
                         <span class="material-icons-sharp">logout</span>
-                        <h3>Logout</h3>
+                        <h3>Выйти</h3>
                     </a>
                 </div>
             </aside>
