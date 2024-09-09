@@ -101,7 +101,7 @@ function generateOptions($components, $type, $selectedId) {
     if (isset($components[$type])) {
         foreach ($components[$type] as $component) {
             $selected = ($component['id'] == $selectedId) ? ' selected' : '';
-            $html .= "<option value=\"{$component['id']}\"$selected>{$component['name']} - {$component['price']} руб</option>";
+            $html .= "<option value=\"{$component['id']}\" data-price=\"{$component['price']}\"$selected>{$component['name']} - {$component['price']} руб</option>";
         }
     }
     return $html;

@@ -14,6 +14,29 @@ $conn->set_charset("utf8mb4");
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
+
+// Получение всех компонентов
+$sql = "SELECT id, name, price FROM components";
+$result = $conn->query($sql);
+
+$components = [];
+if ($result) {
+    while ($row = $result->fetch_assoc()) {
+        $components[$row['id']] = $row;
+    }
+}
+
+// Функция для расчета базовой цены
+function calculateBasePrice($componentIds, $components) {
+    $totalPrice = 0.0;
+    foreach ($componentIds as $componentId) {
+        if (empty($componentId)) continue; // Пропустить, если ID пустой
+        if (isset($components[$componentId])) {
+            $totalPrice += $components[$componentId]['price'];
+        }
+    }
+    return $totalPrice;
+}
 ?>
 
 <!DOCTYPE html>
@@ -189,31 +212,46 @@ if ($conn->connect_error) {
                         $photoPath .= '.jpg';
                     }
             
+                    // Определяем ID выбранных компонентов
+                    $selectedComponentIds = [
+                        $computerRow['motherboard_id'],
+                        $computerRow['processor_id'],
+                        $computerRow['ram_id'],
+                        $computerRow['gpu_id'],
+                        $computerRow['psu_id'],
+                        $computerRow['ssd_id'],
+                        $computerRow['hdd_id'],
+                        $computerRow['case_id'],
+                        $computerRow['cpu_cooler_id'],
+                        $computerRow['extra_cooler_id'],
+                    ];
+
+                    // Пересчитываем базовую цену
+                    $basePrice = calculateBasePrice($selectedComponentIds, $components);
+                    $markup = $computerRow['final_price'] - $basePrice;
+
                     echo '<div class="computer">';
                     echo '<img src="' . $photoPath . '" alt="Computer Photo">';
                     echo '<h3>' . htmlspecialchars($computerRow['name']) . '</h3>';
             
                     // Вывод компонентов
                     echo '<ul>';
-                    $components = [
+                    $componentsList = [
                         'Motherboard' => $computerRow['motherboard_id'],
+                        'Processor' => $computerRow['processor_id'],
                         'RAM' => $computerRow['ram_id'],
                         'GPU' => $computerRow['gpu_id'],
                         'PSU' => $computerRow['psu_id'],
                         'SSD' => $computerRow['ssd_id'],
                         'HDD' => $computerRow['hdd_id'],
-                        'Case' => $computerRow['case_id']
+                        'Case' => $computerRow['case_id'],
+                        'CPU Cooler' => $computerRow['cpu_cooler_id'],
+                        'Extra Cooler' => $computerRow['extra_cooler_id']
                     ];
 
-                    foreach ($components as $type => $id) {
-                        $query = "SELECT name, price FROM components WHERE id = ?";
-                        $stmt = $conn->prepare($query);
-                        $stmt->bind_param("i", $id);
-                        $stmt->execute();
-                        $result = $stmt->get_result();
-                        $component = $result->fetch_assoc();
-                        if ($component) {
-                            echo '<li><strong>' . htmlspecialchars($type) . ':</strong> ' . htmlspecialchars($component['name']) . ' - ' . htmlspecialchars($component['price']) . ' руб. </li>';
+                    foreach ($componentsList as $type => $id) {
+                        if (isset($components[$id])) {
+                            echo '<li><strong>' . htmlspecialchars($type) . ':</strong> ' . htmlspecialchars($components[$id]['name']) . ' - ' . htmlspecialchars($components[$id]['price']) . ' руб. </li>';
                         } else {
                             echo '<li><strong>' . htmlspecialchars($type) . ':</strong> Unknown</li>';
                         }
@@ -221,9 +259,9 @@ if ($conn->connect_error) {
                     echo '</ul>';
 
                     if ($is_admin == check_role(['admin'])){
-                    echo '<p class="price">Cost Price: ' . htmlspecialchars(number_format($computerRow['base_price'], 2)) . ' руб.</p>';
-                    echo '<p class="price">Markup: ' . htmlspecialchars(number_format($computerRow['markup'], 2)) . ' руб.</p>';
-                    };
+                        echo '<p class="price">Base Price: ' . htmlspecialchars(number_format($basePrice, 2)) . ' руб.</p>';
+                        echo '<p class="price">Markup: ' . htmlspecialchars(number_format($markup, 2)) . ' руб.</p>';
+                    }
                     echo '<p class="price">Final Price: ' . htmlspecialchars($computerRow['final_price']) . ' руб.</p>';
 
                     // Кнопки редактирования, удаления и продажи
@@ -237,7 +275,6 @@ if ($conn->connect_error) {
 
                     echo '<form action="delete_computer.php" method="post">';
                     echo '<input type="hidden" name="id" value="' . htmlspecialchars($computerRow['id']) . '">';
-                    /*echo '<button type="submit" class="delete-button">Delete</button>'; */
                     echo '</form>';
 
                     echo '<form action="sell_computer.php" method="get">';

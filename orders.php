@@ -34,6 +34,57 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         if ($stmt->execute()) {
             echo "<p>Order status updated successfully.</p>";
+
+            // Если статус изменился на "куплен", обновляем количество компонентов
+            if ($status === 'куплен') {
+                // Получение всех компонентов из заказа
+                $sqlGetComponents = "
+                    SELECT 
+                        motherboard_id, processor_id, ram_id, gpu_id, psu_id, 
+                        ssd_id, hdd_id, case_id, cpu_cooler_id, extra_cooler_id 
+                    FROM orders 
+                    WHERE id = ?
+                ";
+                $stmtGetComponents = $conn->prepare($sqlGetComponents);
+                $stmtGetComponents->bind_param("i", $order_id);
+                $stmtGetComponents->execute();
+                $stmtGetComponents->bind_result(
+                    $motherboard_id, $processor_id, $ram_id, $gpu_id, $psu_id, 
+                    $ssd_id, $hdd_id, $case_id, $cpu_cooler_id, $extra_cooler_id
+                );
+                $stmtGetComponents->fetch();
+                $stmtGetComponents->close();
+
+                // Список компонентов для обновления
+                $componentIds = [
+                    $motherboard_id,
+                    $processor_id,
+                    $ram_id,
+                    $gpu_id,
+                    $psu_id,
+                    $ssd_id,
+                    $hdd_id,
+                    $case_id,
+                    $cpu_cooler_id
+                ];
+
+                if ($extra_cooler_id !== null) {
+                    $componentIds[] = $extra_cooler_id;
+                }
+
+                // Обновление количества компонентов
+                foreach ($componentIds as $componentId) {
+                    if ($componentId) {
+                        $updateSql = "UPDATE components SET quantity = quantity - 1 WHERE id = ?";
+                        $updateStmt = $conn->prepare($updateSql);
+                        $updateStmt->bind_param("i", $componentId);
+                        if (!$updateStmt->execute()) {
+                            echo "Error updating component quantity for ID: " . $componentId;
+                        }
+                        $updateStmt->close();
+                    }
+                }
+            }
         } else {
             echo "<p>Error: " . $stmt->error . "</p>";
         }

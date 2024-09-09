@@ -144,21 +144,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if ($stmt->execute()) {
             // Если заказ успешно создан, уменьшаем количество компонентов на складе
 
-            // Обновление количества компонентов
-            foreach ($componentIds as $componentId) {
-                if ($componentId) {
-                    $updateSql = "UPDATE components SET quantity = quantity - 1 WHERE id = ?";
-                    $updateStmt = $conn->prepare($updateSql);
-                    $updateStmt->bind_param("i", $componentId);
-                    if (!$updateStmt->execute()) {
-                        echo "Error updating component quantity for ID: " . $componentId;
-                    }
-                    $updateStmt->close();
-                }
-            }
+            // // Обновление количества компонентов
+            // foreach ($componentIds as $componentId) {
+            //     if ($componentId) {
+            //         $updateSql = "UPDATE components SET quantity = quantity - 1 WHERE id = ?";
+            //         $updateStmt = $conn->prepare($updateSql);
+            //         $updateStmt->bind_param("i", $componentId);
+            //         if (!$updateStmt->execute()) {
+            //             echo "Error updating component quantity for ID: " . $componentId;
+            //         }
+            //         $updateStmt->close();
+            //     }
+            // }
 
             // Отправка уведомления в Telegram
-            $message = "Новый заказ:\n\nНазвание: {$name}\nГород: {$city}\nОбщая цена: {$final_price}₽";
+            $message = "Новый заказ:\n\nНазвание: {$name}\nГород: {$city}\nОбщая цена: {$final_price}₽ \n @maskarad1313";
             sendTelegramNotification($message);
 
             // Перенаправление на страницу подтверждения
