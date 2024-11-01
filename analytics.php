@@ -148,63 +148,101 @@ $conn->close();
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-        }
-        .container {
-            width: 80%;
-            margin: 50px auto;
-            background: #fff;
-            padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        h1 {
-            text-align: center;
-            color: #333;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        table, th, td {
-            border: 1px solid #ddd;
-        }
-        th, td {
-            padding: 12px;
-            text-align: center;
-        }
-        th {
-            background-color: #f4f4f4;
-            color: #333;
-        }
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-        tr:hover {
-            background-color: #f1f1f1;
-        }
-        .form-group {
-            margin-bottom: 20px;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-        }
-        .form-group input {
-            padding: 5px;
-            width: 100%;
-            max-width: 200px;
-        }
-        .charts {
-            margin-top: 40px;
-        }
-        canvas {
-            width: 100%;
-            height: 400px;
-        }
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    width: 90%; /* Увеличиваем ширину контейнера для мобильных */
+    max-width: 800px; /* Ограничиваем максимальную ширину */
+    margin: 50px auto;
+    background: #fff;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    text-align: center;
+    color: #333;
+    font-size: 24px; /* Уменьшаем размер заголовка для мобильных */
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+table, th, td {
+    border: 1px solid #ddd;
+}
+
+th, td {
+    padding: 12px;
+    text-align: center;
+    font-size: 14px; /* Уменьшаем размер шрифта для мобильных */
+}
+
+th {
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+tr:hover {
+    background-color: #f1f1f1;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 14px; /* Уменьшаем размер шрифта для мобильных */
+}
+
+.form-group input {
+    padding: 5px;
+    width: 100%;
+    max-width: 100%; /* Увеличиваем ширину поля ввода на мобильных */
+}
+
+.charts {
+    margin-top: 40px;
+}
+
+canvas {
+    width: 100%;
+    height: 300px; /* Уменьшаем высоту графика на мобильных */
+}
+
+/* Медиазапрос для мобильных устройств */
+@media (max-width: 600px) {
+    h1 {
+        font-size: 20px; /* Уменьшаем размер заголовка на мобильных */
+    }
+
+    th, td {
+        font-size: 12px; /* Уменьшаем размер шрифта в таблице на мобильных */
+        padding: 8px; /* Уменьшаем отступы в ячейках на мобильных */
+    }
+
+    .form-group input {
+        max-width: 100%; /* Поля ввода занимают всю ширину на мобильных */
+    }
+
+    canvas {
+        height: 250px; /* Уменьшаем высоту графиков на мобильных */
+    }
+}
+
     </style>
 </head>
 <body>

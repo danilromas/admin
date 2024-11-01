@@ -178,87 +178,146 @@ $result = $stmt->get_result();
     <meta charset="UTF-8">
     <title>Components List</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-        }
-        .container {
-            width: 80%;
-            margin: 50px auto;
-            background: #fff;
-            padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        h1 {
-            text-align: center;
-            color: #333;
-        }
-        .filters {
-            margin-bottom: 20px;
-        }
-        .filters form {
-            display: inline;
-            margin-right: 10px;
-        }
-        .filters input, .filters select {
-            padding: 5px;
-            margin-right: 5px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        table, th, td {
-            border: 1px solid #ddd;
-        }
-        th, td {
-            padding: 12px;
-            text-align: center;
-        }
-        th {
-            background-color: #f4f4f4;
-            color: #333;
-        }
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-        tr:hover {
-            background-color: #f1f1f1;
-        }
-        .btn {
-            padding: 5px 10px;
-            text-decoration: none;
-            color: #fff;
-            border-radius: 3px;
-        }
-        .btn-edit {
-            background-color: #4CAF50;
-        }
-        .btn-delete {
-            background-color: #f44336;
-        }
-        .photo {
-            width: 100px;
-            height: auto;
-        }
-        .back-button {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background-color: #f4f4f4;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            padding: 0.5em 1em;
-            color: #007BFF;
-            text-decoration: none;
-            font-weight: bold;
-        }
-        .back-button:hover {
-            background-color: #e0e0e0;
-        }
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    width: 90%; /* Изменено на 90% для мобильных устройств */
+    margin: 50px auto;
+    background: #fff;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    text-align: center;
+    color: #333;
+}
+
+.filters {
+    margin-bottom: 20px;
+    display: flex; /* Изменено на flex для лучшего выравнивания на мобильных */
+    flex-direction: column; /* Вертикальное выравнивание для мобильных */
+    align-items: center; /* Центрирование элементов */
+}
+
+.filters form {
+    display: flex; /* Изменено на flex для более удобного отображения */
+    flex-wrap: wrap; /* Позволяет оборачивать элементы на мобильных устройствах */
+    justify-content: center; /* Центрирование формы */
+    margin-bottom: 10px; /* Уменьшено расстояние между формами */
+}
+
+.filters input,
+.filters select {
+    padding: 5px;
+    margin: 5px; /* Увеличены отступы для мобильных */
+    width: calc(100% - 10px); /* Устанавливаем ширину для мобильных */
+    max-width: 150px; /* Устанавливаем максимальную ширину */
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+table,
+th,
+td {
+    border: 1px solid #ddd;
+}
+
+th,
+td {
+    padding: 12px;
+    text-align: center;
+}
+
+th {
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+tr:hover {
+    background-color: #f1f1f1;
+}
+
+.btn {
+    padding: 5px 10px;
+    text-decoration: none;
+    color: #fff;
+    border-radius: 3px;
+}
+
+.btn-edit {
+    background-color: #4CAF50;
+}
+
+.btn-delete {
+    background-color: #f44336;
+}
+
+.photo {
+    width: 100px;
+    height: auto;
+}
+
+.back-button {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background-color: #f4f4f4;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 0.5em 1em;
+    color: #007BFF;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.back-button:hover {
+    background-color: #e0e0e0;
+}
+
+/* Медиазапросы для мобильных устройств */
+@media (max-width: 600px) {
+    h1 {
+        font-size: 1.5em; /* Уменьшаем размер заголовка */
+    }
+
+    .filters {
+        flex-direction: column; /* Вертикальное выравнивание на мобильных */
+        align-items: stretch; /* Заставляем элементы занимать всю ширину */
+    }
+
+    .filters form {
+        justify-content: center; /* Центрирование формы */
+    }
+
+    .filters input,
+    .filters select {
+        width: 100%; /* Устанавливаем ширину на 100% */
+        max-width: none; /* Убираем ограничение по максимальной ширине */
+    }
+
+    .container {
+        padding: 10px; /* Уменьшаем отступы контейнера */
+    }
+
+    .photo {
+        width: 80px; /* Уменьшаем размер фото */
+    }
+}
+
     </style>
 </head>
 <body>

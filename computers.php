@@ -46,153 +46,189 @@ function calculateBasePrice($componentIds, $components) {
     <title>List of Computers</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-        }
-        .shop-section {
-            width: 80%;
-            max-width: 1200px;
-            margin: 20px;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        .shop-section h2 {
-            font-size: 24px;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #007BFF;
-            padding-bottom: 10px;
-            color: #333;
-        }
-        .computer-list {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-        }
-        .computer {
-            width: 30%;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 15px;
-            margin: 10px 0;
-            text-align: center;
-            background: linear-gradient(to bottom right, #f9f9f9, #ffffff);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .computer:hover {
-            transform: scale(1.02);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-        }
-        .computer img {
-            width: 100%;
-            height: 200px; /* Fixed height */
-            object-fit: cover; /* Ensure image fits within the container */
-            border-radius: 8px;
-            margin-bottom: 15px;
-        }
-        .computer h3 {
-            font-size: 22px;
-            margin-bottom: 10px;
-            color: #333;
-        }
-        .computer ul {
-            list-style-type: none;
-            padding: 0;
-            text-align: left;
-        }
-        .computer ul li {
-            font-size: 16px;
-            margin-bottom: 5px;
-            color: #666;
-        }
-        .computer .price {
-            font-size: 20px;
-            font-weight: bold;
-            margin-bottom: 10px;
-            color: #007BFF;
-        }
-        .computer .availability {
-            font-size: 16px;
-            color: #28A745;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-        .computer .buttons {
-            margin-top: 15px;
-        }
-        .computer .buttons form {
-            display: inline-block;
-        }
-        .computer .buttons button {
-            padding: 8px 15px;
-            margin: 5px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.2s, transform 0.2s;
-        }
-        .computer .buttons button:hover {
-            transform: scale(1.05);
-        }
-        .edit-button {
-            background-color: #007BFF;
-            color: white;
-        }
-        .edit-button:hover {
-            background-color: #0056b3;
-        }
-        .delete-button {
-            background-color: #DC3545;
-            color: white;
-        }
-        .delete-button:hover {
-            background-color: #c82333;
-        }
-        .sell_computer {
-            background-color: #28A745;
-            color: white;
-        }
-        .sell_computer:hover {
-            background-color: #218838;
-        }
-        .back-button {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background-color: #f4f4f4;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            padding: 0.5em 1em;
-            color: #007BFF;
-            text-decoration: none;
-            font-weight: bold;
-        }
-        .back-button:hover {
-            background-color: #e0e0e0;
-        }
-        .back-button {
-            display: inline-block;
-            margin: 20px;
-            padding: 10px 20px;
-            color: #007BFF;
-            text-decoration: none;
-            background-color: #f4f4f4;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-weight: bold;
-            transition: background-color 0.2s;
-        }
-        .back-button:hover {
-            background-color: #e0e0e0;
-        }
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+}
+
+.shop-section {
+    width: 90%; /* Изменяем ширину для мобильных */
+    max-width: 1200px;
+    margin: 20px auto; /* Увеличиваем отступ сверху и снизу для мобильных */
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.shop-section h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #007BFF;
+    padding-bottom: 10px;
+    color: #333;
+}
+
+.computer-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.computer {
+    width: 30%; /* Исходная ширина для больших экранов */
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    margin: 10px 0;
+    text-align: center;
+    background: linear-gradient(to bottom right, #f9f9f9, #ffffff);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.computer:hover {
+    transform: scale(1.02);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+.computer img {
+    width: 100%;
+    height: 200px; /* Фиксированная высота */
+    object-fit: cover; /* Убедитесь, что изображение вписывается в контейнер */
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.computer h3 {
+    font-size: 22px;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.computer ul {
+    list-style-type: none;
+    padding: 0;
+    text-align: left;
+}
+
+.computer ul li {
+    font-size: 16px;
+    margin-bottom: 5px;
+    color: #666;
+}
+
+.computer .price {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #007BFF;
+}
+
+.computer .availability {
+    font-size: 16px;
+    color: #28A745;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.computer .buttons {
+    margin-top: 15px;
+}
+
+.computer .buttons form {
+    display: inline-block;
+}
+
+.computer .buttons button {
+    padding: 8px 15px;
+    margin: 5px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.2s, transform 0.2s;
+}
+
+.computer .buttons button:hover {
+    transform: scale(1.05);
+}
+
+.edit-button {
+    background-color: #007BFF;
+    color: white;
+}
+
+.edit-button:hover {
+    background-color: #0056b3;
+}
+
+.delete-button {
+    background-color: #DC3545;
+    color: white;
+}
+
+.delete-button:hover {
+    background-color: #c82333;
+}
+
+.sell_computer {
+    background-color: #28A745;
+    color: white;
+}
+
+.sell_computer:hover {
+    background-color: #218838;
+}
+
+.back-button {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background-color: #f4f4f4;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 0.5em 1em;
+    color: #007BFF;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+/* Медиазапрос для мобильной версии */
+@media (max-width: 768px) {
+    .shop-section {
+        width: 95%; /* Увеличиваем ширину для мобильных */
+        padding: 15px; /* Уменьшаем внутренние отступы */
+    }
+
+    .computer {
+        width: 100%; /* Задаем 100% ширины для компьютерного блока */
+        margin: 10px 0; /* Отменяем горизонтальные отступы */
+    }
+
+    .computer h3 {
+        font-size: 20px; /* Уменьшаем размер заголовка */
+    }
+
+    .computer .price,
+    .computer .availability {
+        font-size: 18px; /* Уменьшаем размер шрифта */
+    }
+
+    .computer .buttons button {
+        font-size: 14px; /* Уменьшаем размер шрифта кнопок */
+    }
+
+    .back-button {
+        padding: 0.5em; /* Уменьшаем отступы */
+        font-size: 14px; /* Уменьшаем размер шрифта */
+    }
+}
+
 
     </style>
 </head>

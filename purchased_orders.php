@@ -172,6 +172,7 @@ input[type="submit"] {
 input[type="submit"]:hover {
     opacity: 0.8;
 }
+
 .back-button {
     display: inline-block;
     margin: 20px;
@@ -184,9 +185,42 @@ input[type="submit"]:hover {
     font-weight: bold;
     transition: background-color 0.2s;
 }
+
 .back-button:hover {
     background-color: #e0e0e0;
 }
+
+/* Медиазапрос для мобильной версии */
+@media (max-width: 768px) {
+    body {
+        margin: 10px; /* Уменьшаем внешние отступы */
+    }
+
+    h2 {
+        font-size: 24px; /* Уменьшаем размер заголовка */
+    }
+
+    table {
+        margin: 0; /* Убираем нижний отступ у таблицы */
+    }
+
+    th, td {
+        padding: 8px; /* Уменьшаем отступы ячеек */
+        font-size: 12px; /* Уменьшаем размер шрифта */
+    }
+
+    button {
+        font-size: 12px; /* Уменьшаем размер шрифта кнопок */
+        padding: 4px 8px; /* Уменьшаем отступы кнопок */
+    }
+
+    .back-button {
+        margin: 10px; /* Уменьшаем отступы у кнопки "Назад" */
+        padding: 8px 12px; /* Уменьшаем отступы у кнопки "Назад" */
+        font-size: 12px; /* Уменьшаем размер шрифта кнопки "Назад" */
+    }
+}
+
     </style>
 </head>
 <body>

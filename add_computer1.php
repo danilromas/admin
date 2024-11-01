@@ -98,71 +98,114 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Add Computer Build</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-        }
-        .container {
-            max-width: 800px;
-            margin: 20px auto;
-            padding: 20px;
-            background: #fff;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        h2 {
-            text-align: center;
-            color: #333;
-        }
-        form {
-            display: flex;
-            flex-direction: column;
-        }
-        label {
-            margin-top: 1em;
-            color: #555;
-        }
-        input[type="text"],
-        input[type="number"],
-        input[type="file"],
-        select {
-            width: 100%;
-            padding: 0.8em;
-            margin-top: 0.5em;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 1em;
-        }
-        input[type="submit"] {
-            margin-top: 1.5em;
-            padding: 1em;
-            border: none;
-            border-radius: 5px;
-            background: #28a745;
-            color: white;
-            font-size: 1.2em;
-            cursor: pointer;
-            transition: background 0.3s ease;
-        }
-        input[type="submit"]:hover {
-            background: #218838;
-        }
-        .form-group {
-            display: flex;
-            flex-direction: column;
-        }
-        .form-group-inline {
-            display: flex;
-            justify-content: space-between;
-        }
-        .form-group-inline > div {
-            flex: 1;
-            margin-right: 10px;
-        }
-        .form-group-inline > div:last-child {
-            margin-right: 0;
-        }
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 800px; /* Максимальная ширина контейнера */
+    margin: 20px auto;
+    padding: 20px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+    text-align: center;
+    color: #333;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    margin-top: 1em;
+    color: #555;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="file"],
+select {
+    width: 100%;
+    padding: 0.8em;
+    margin-top: 0.5em;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1em;
+}
+
+input[type="submit"] {
+    margin-top: 1.5em;
+    padding: 1em;
+    border: none;
+    border-radius: 5px;
+    background: #28a745;
+    color: white;
+    font-size: 1.2em;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+input[type="submit"]:hover {
+    background: #218838;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group-inline {
+    display: flex;
+    justify-content: space-between;
+}
+
+.form-group-inline > div {
+    flex: 1;
+    margin-right: 10px;
+}
+
+.form-group-inline > div:last-child {
+    margin-right: 0;
+}
+
+/* Медиазапросы для мобильных устройств */
+@media (max-width: 600px) {
+    .container {
+        margin: 10px; /* Уменьшаем отступы для мобильных */
+        padding: 15px; /* Уменьшаем внутренние отступы для мобильных */
+    }
+
+    h2 {
+        font-size: 1.5em; /* Уменьшаем размер заголовка */
+    }
+
+    input[type="submit"] {
+        font-size: 1em; /* Уменьшаем размер шрифта кнопки */
+        padding: 0.8em; /* Уменьшаем внутренние отступы кнопки */
+    }
+
+    .form-group-inline {
+        flex-direction: column; /* Вертикальное расположение для мобильных */
+        align-items: stretch; /* Элементы занимают всю ширину */
+    }
+
+    .form-group-inline > div {
+        margin-right: 0; /* Убираем правые отступы */
+        margin-bottom: 10px; /* Добавляем нижние отступы */
+    }
+
+    .form-group-inline > div:last-child {
+        margin-bottom: 0; /* Убираем нижний отступ у последнего элемента */
+    }
+}
+
     </style>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
