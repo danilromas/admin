@@ -8,6 +8,8 @@ $conn = new mysqli($db_config['servername'], $db_config['username'], $db_config[
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
+require 'auth.php'; // Убедитесь, что путь к файлу правильный
+$is_admin = check_role(['admin']) ? true : false;
 
 // Установка кодировки соединения
 $conn->set_charset("utf8mb4");
@@ -28,15 +30,30 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['id'])) {
     die("Invalid request.");
 }
 
-// Получение всех компонентов с их ценами
+// Получение всех компонентов с их ценами и количеством
 $components = [];
-$sql = "SELECT id, name, category, price FROM components";
+$sql = "SELECT id, name, category, price, quantity FROM components";
 $result = $conn->query($sql);
 
 if ($result) {
     while ($row = $result->fetch_assoc()) {
         $components[$row['category']][$row['id']] = $row;
     }
+}
+
+// Функция для генерации HTML опций
+function generateOptions($components, $type, $selectedId) {
+    $html = '';
+    if (isset($components[$type])) {
+        foreach ($components[$type] as $component) {
+            $selected = ($component['id'] == $selectedId) ? ' selected' : '';
+            $disabled = ($component['quantity'] <= 0) ? ' disabled' : '';
+            $availabilityText = ($component['quantity'] <= 0) ? " (Нет в наличии)" : "";
+            $priceText = $is_admin ? " - {$component['price']} руб" : ""; // Показывать цену только админу
+            $html .= "<option value=\"{$component['id']}\"$selected$disabled>{$component['name']}{$priceText}{$availabilityText}</option>";
+        }
+    }
+    return $html;
 }
 
 // Расчет итоговой цены на основе выбранных компонентов и добавления markup
@@ -74,18 +91,6 @@ $additionalPrice = floatval($computer['additional_price'] ?? 0); // Предпо
 
 // Пересчитываем итоговую цену
 $finalPrice = calculateFinalPrice($selectedComponentIds, $components, $markup, $additionalPrice);
-
-// Функция для генерации HTML опций
-function generateOptions($components, $type, $selectedId) {
-    $html = '';
-    if (isset($components[$type])) {
-        foreach ($components[$type] as $component) {
-            $selected = ($component['id'] == $selectedId) ? ' selected' : '';
-            $html .= "<option value=\"{$component['id']}\"$selected>{$component['name']} - {$component['price']} руб</option>";
-        }
-    }
-    return $html;
-}
 
 $conn->close();
 ?>

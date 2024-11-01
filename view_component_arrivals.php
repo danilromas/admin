@@ -77,14 +77,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
-// Получение данных о поступлениях компонентов, отображаем только те, что в пути
 $sql_arrivals = "
-    SELECT ca.id, c.name AS component_name, ca.quantity, ca.price, ca.arrival_date, ca.status
+    SELECT ca.id, c.name AS component_name, ca.quantity, ca.price, ca.arrival_date, ca.invoice_number, ca.status, ca.delivery_date
     FROM component_arrivals ca
     JOIN components c ON ca.component_id = c.id
     WHERE ca.status = 'in_transit'
     ORDER BY ca.arrival_date DESC
 ";
+
 $result_arrivals = $conn->query($sql_arrivals);
 
 // Закрытие соединения
@@ -158,47 +158,52 @@ $conn->close();
 <body>
     <div class="table-container">
         <h2>Component Arrivals</h2>
-        <table>
-            <tr>
-                <th>ID</th>
-                <th>Component</th>
-                <th>Quantity</th>
-                <th>Price</th>
-                <th>Arrival Date</th>
-                <th>Status</th>
-                <th>Action</th>
-            </tr>
-            <?php
-            if ($result_arrivals && $result_arrivals->num_rows > 0) {
-                while ($row = $result_arrivals->fetch_assoc()) {
-                    echo "<tr>";
-                    echo "<td>" . htmlspecialchars($row['id']) . "</td>";
-                    echo "<td>" . htmlspecialchars($row['component_name']) . "</td>";
-                    echo "<td>" . htmlspecialchars($row['quantity']) . "</td>";
-                    echo "<td>" . htmlspecialchars($row['price']) . "</td>";
-                    echo "<td>" . htmlspecialchars($row['arrival_date']) . "</td>";
-                    echo "<td>" . htmlspecialchars($row['status']) . "</td>";
-                    echo "<td>";
-                    if ($row['status'] == 'in_transit') {
-                        echo "<form action='view_component_arrivals.php' method='post' style='display:inline;'>
-                            <input type='hidden' name='deliver_id' value='" . htmlspecialchars($row['id']) . "'>
-                            <button type='submit' class='btn-deliver'>Deliver</button>
-                        </form>";
-                    } else {
-                        echo "<span>--</span>";
-                    }
+            <table>
+        <tr>
+            <th>ID</th>
+            <th>Компонент</th>
+            <th>Количество</th>
+            <th>Цена</th>
+            <th>Дата</th>
+            <th>Дата поступления</th>
+            <th>Номер накладной</th> <!-- Новая колонка для номера накладной -->
+            <th>Статус</th>
+            <th>Действие</th>
+        </tr>
+        <?php
+        if ($result_arrivals && $result_arrivals->num_rows > 0) {
+            while ($row = $result_arrivals->fetch_assoc()) {
+                echo "<tr>";
+                echo "<td>" . htmlspecialchars($row['id']) . "</td>";
+                echo "<td>" . htmlspecialchars($row['component_name']) . "</td>";
+                echo "<td>" . htmlspecialchars($row['quantity']) . "</td>";
+                echo "<td>" . htmlspecialchars($row['price']) . "</td>";
+                echo "<td>" . htmlspecialchars($row['arrival_date']) . "</td>";
+                echo "<td>" . htmlspecialchars($row['delivery_date']) . "</td>";
+                echo "<td>" . htmlspecialchars($row['invoice_number']) . "</td>";
+                echo "<td>" . htmlspecialchars($row['status']) . "</td>";
+                echo "<td>";
+                if ($row['status'] == 'in_transit') {
                     echo "<form action='view_component_arrivals.php' method='post' style='display:inline;'>
-                        <input type='hidden' name='delete_id' value='" . htmlspecialchars($row['id']) . "'>
-                        <button type='submit' class='btn-delete'>Delete</button>
+                        <input type='hidden' name='deliver_id' value='" . htmlspecialchars($row['id']) . "'>
+                        <button type='submit' class='btn-deliver'>Доставить</button>
                     </form>";
-                    echo "</td>";
-                    echo "</tr>";
+                } else {
+                    echo "<span>--</span>";
                 }
-            } else {
-                echo "<tr><td colspan='7'>No component arrivals found.</td></tr>";
+                echo "<form action='view_component_arrivals.php' method='post' style='display:inline;'>
+                    <input type='hidden' name='delete_id' value='" . htmlspecialchars($row['id']) . "'>
+                    <button type='submit' class='btn-delete'>Удалить</button>
+                </form>";
+                echo "</td>";
+                echo "</tr>";
             }
-            ?>
-        </table>
+        } else {
+            echo "<tr><td colspan='8'>Нет поступлений компонентов.</td></tr>"; // Убедитесь, что количество ячеек совпадает
+        }
+        ?>
+    </table>
+
     </div>
 </body>
 </html>

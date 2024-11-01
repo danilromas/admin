@@ -178,10 +178,26 @@ function calculateBasePrice($componentIds, $components) {
         .back-button:hover {
             background-color: #e0e0e0;
         }
+        .back-button {
+            display: inline-block;
+            margin: 20px;
+            padding: 10px 20px;
+            color: #007BFF;
+            text-decoration: none;
+            background-color: #f4f4f4;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        .back-button:hover {
+            background-color: #e0e0e0;
+        }
+
     </style>
 </head>
 <body>
-<a href="index.html" class="back-button">Back to Index</a>
+    <a href="index.php" class="back-button">Назад</a>
     <?php
     // Запрос для получения уникальных магазинов
     $shopsQuery = "SELECT DISTINCT shop FROM computers ORDER BY shop";

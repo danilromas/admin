@@ -34,9 +34,15 @@ $stmt->bind_param("ss", $startDate, $endDate);
 $stmt->execute();
 $result = $stmt->get_result();
 
+// Код до получения данных остается прежним
+
 $data = [];
 if ($result->num_rows > 0) {
     while ($row = $result->fetch_assoc()) {
+        // Добавляем платы в каждый элемент массива
+        $row['manager_fee'] = 700; // Плата менеджеру
+        $row['assistant_fee'] = 1000; // Плата заместителю
+        $row['assembler_fee'] = 1200; // Плата сборщику
         $data[] = $row;
     }
 } else {
@@ -49,4 +55,3 @@ $conn->close();
 
 // Отправка данных в формате JSON
 echo json_encode($data, JSON_UNESCAPED_UNICODE);
-?>

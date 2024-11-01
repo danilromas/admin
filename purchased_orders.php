@@ -172,25 +172,41 @@ input[type="submit"] {
 input[type="submit"]:hover {
     opacity: 0.8;
 }
+.back-button {
+    display: inline-block;
+    margin: 20px;
+    padding: 10px 20px;
+    color: #007BFF;
+    text-decoration: none;
+    background-color: #f4f4f4;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+.back-button:hover {
+    background-color: #e0e0e0;
+}
     </style>
 </head>
 <body>
 <body>
     <h2>Orders</h2>
+    <a href="index.php" class="back-button">Назад</a>
     <table>
         <tr>
-            <th><a href="?order_by=id&sort=<?php echo $sort === 'ASC' ? 'DESC' : 'ASC'; ?>">ID <i class="fas fa-sort<?php echo $order_by === 'id' ? ($sort === 'ASC' ? '' : '-desc') : ''; ?>"></i></a></th>
-            <th><a href="?order_by=date&sort=<?php echo $sort === 'ASC' ? 'DESC' : 'ASC'; ?>">Date <i class="fas fa-sort<?php echo $order_by === 'date' ? ($sort === 'ASC' ? '' : '-desc') : ''; ?>"></i></a></th>
-            <th><a href="?order_by=order_name&sort=<?php echo $sort === 'ASC' ? 'DESC' : 'ASC'; ?>">Name <i class="fas fa-sort<?php echo $order_by === 'order_name' ? ($sort === 'ASC' ? '' : '-desc') : ''; ?>"></i></a></th>
-            <th><a href="?order_by=city&sort=<?php echo $sort === 'ASC' ? 'DESC' : 'ASC'; ?>">City <i class="fas fa-sort<?php echo $order_by === 'city' ? ($sort === 'ASC' ? '' : '-desc') : ''; ?>"></i></a></th>
-            <th><a href="?order_by=delivery&sort=<?php echo $sort === 'ASC' ? 'DESC' : 'ASC'; ?>">Delivery <i class="fas fa-sort<?php echo $order_by === 'delivery' ? ($sort === 'ASC' ? '' : '-desc') : ''; ?>"></i></a></th>
-            <th><a href="?order_by=additional&sort=<?php echo $sort === 'ASC' ? 'DESC' : 'ASC'; ?>">Additional <i class="fas fa-sort<?php echo $order_by === 'additional' ? ($sort === 'ASC' ? '' : '-desc') : ''; ?>"></i></a></th>
-            <th><a href="?order_by=additional_price&sort=<?php echo $sort === 'ASC' ? 'DESC' : 'ASC'; ?>">Additional Price <i class="fas fa-sort<?php echo $order_by === 'additional_price' ? ($sort === 'ASC' ? '' : '-desc') : ''; ?>"></i></a></th>
-            <th><a href="?order_by=total_price&sort=<?php echo $sort === 'ASC' ? 'DESC' : 'ASC'; ?>">Total Price <i class="fas fa-sort<?php echo $order_by === 'total_price' ? ($sort === 'ASC' ? '' : '-desc') : ''; ?>"></i></a></th>
-            <th><a href="?order_by=status&sort=<?php echo $sort === 'ASC' ? 'DESC' : 'ASC'; ?>">Status <i class="fas fa-sort<?php echo $order_by === 'status' ? ($sort === 'ASC' ? '' : '-desc') : ''; ?>"></i></a></th>
-            <th><a href="?order_by=computer_name&sort=<?php echo $sort === 'ASC' ? 'DESC' : 'ASC'; ?>">Computer <i class="fas fa-sort<?php echo $order_by === 'computer_name' ? ($sort === 'ASC' ? '' : '-desc') : ''; ?>"></i></a></th>
-            <th><a href="?order_by=shop_name&sort=<?php echo $sort === 'ASC' ? 'DESC' : 'ASC'; ?>">Shop <i class="fas fa-sort<?php echo $order_by === 'shop_name' ? ($sort === 'ASC' ? '' : '-desc') : ''; ?>"></i></a></th>
-            <th>Actions</th>
+        <th><a href="?order_by=id&sort=<?php echo $sort === 'ASC' ? 'DESC' : 'ASC'; ?>">ID <i class="fas fa-sort<?php echo $order_by === 'id' ? ($sort === 'ASC' ? '' : '-desc') : ''; ?>"></i></a></th>
+            <th><a href="?order_by=date&sort=<?php echo $sort === 'ASC' ? 'DESC' : 'ASC'; ?>">Дата <i class="fas fa-sort<?php echo $order_by === 'date' ? ($sort === 'ASC' ? '' : '-desc') : ''; ?>"></i></a></th>
+            <th><a href="?order_by=order_name&sort=<?php echo $sort === 'ASC' ? 'DESC' : 'ASC'; ?>">Имя<i class="fas fa-sort<?php echo $order_by === 'order_name' ? ($sort === 'ASC' ? '' : '-desc') : ''; ?>"></i></a></th>
+            <th><a href="?order_by=city&sort=<?php echo $sort === 'ASC' ? 'DESC' : 'ASC'; ?>">Город <i class="fas fa-sort<?php echo $order_by === 'city' ? ($sort === 'ASC' ? '' : '-desc') : ''; ?>"></i></a></th>
+            <th><a href="?order_by=delivery&sort=<?php echo $sort === 'ASC' ? 'DESC' : 'ASC'; ?>">Доставка <i class="fas fa-sort<?php echo $order_by === 'delivery' ? ($sort === 'ASC' ? '' : '-desc') : ''; ?>"></i></a></th>
+            <th><a href="?order_by=additional&sort=<?php echo $sort === 'ASC' ? 'DESC' : 'ASC'; ?>">Дополнения <i class="fas fa-sort<?php echo $order_by === 'additional' ? ($sort === 'ASC' ? '' : '-desc') : ''; ?>"></i></a></th>
+            <th><a href="?order_by=additional_price&sort=<?php echo $sort === 'ASC' ? 'DESC' : 'ASC'; ?>">Доп Цена<i class="fas fa-sort<?php echo $order_by === 'additional_price' ? ($sort === 'ASC' ? '' : '-desc') : ''; ?>"></i></a></th>
+            <th><a href="?order_by=total_price&sort=<?php echo $sort === 'ASC' ? 'DESC' : 'ASC'; ?>">Финальная цена<i class="fas fa-sort<?php echo $order_by === 'total_price' ? ($sort === 'ASC' ? '' : '-desc') : ''; ?>"></i></a></th> <!-- Изменено на Final Price -->
+            <th><a href="?order_by=status&sort=<?php echo $sort === 'ASC' ? 'DESC' : 'ASC'; ?>">Статус<i class="fas fa-sort<?php echo $order_by === 'status' ? ($sort === 'ASC' ? '' : '-desc') : ''; ?>"></i></a></th>
+            <th><a href="?order_by=computer_name&sort=<?php echo $sort === 'ASC' ? 'DESC' : 'ASC'; ?>">ПК<i class="fas fa-sort<?php echo $order_by === 'computer_name' ? ($sort === 'ASC' ? '' : '-desc') : ''; ?>"></i></a></th>
+            <th><a href="?order_by=shop_name&sort=<?php echo $sort === 'ASC' ? 'DESC' : 'ASC'; ?>">Магазин <i class="fas fa-sort<?php echo $order_by === 'shop_name' ? ($sort === 'ASC' ? '' : '-desc') : ''; ?>"></i></a></th>
+            <th>Характеристики</th>
         </tr>
         <?php while ($row = $result->fetch_assoc()) { ?>
             <tr>

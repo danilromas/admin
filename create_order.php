@@ -62,6 +62,39 @@ function sendTelegramNotification($message) {
 // Пример использования функции
 sendTelegramNotification("Новый заказ!");
 
+function sendTelegramNotification1($message) {
+    $botToken = '6811663386:AAFD--8cBLJjjac0maWmW_-7GcmXzV1B3to';  // Ваш токен бота
+    $chatId = '-4574327227';  // Ваш правильный chat_id
+
+    // Кодируем сообщение для URL
+    $message = urlencode($message);
+
+    // Формируем URL
+    $url = "https://api.telegram.org/bot{$botToken}/sendMessage?chat_id={$chatId}&text={$message}";
+
+    // Инициализируем cURL
+    $ch = curl_init();
+
+    // Устанавливаем параметры cURL
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+    // Исполняем запрос
+    $response = curl_exec($ch);
+
+    // Проверяем на ошибки
+    if ($response === false) {
+        error_log("Telegram API request failed: " . curl_error($ch));
+    } else {
+        error_log("Telegram API request successful: " . $response);
+    }
+
+    // Закрываем cURL сессию
+    curl_close($ch);
+}
+
+sendTelegramNotification1("Новый заказ!");
+
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Получение данных из формы
@@ -144,22 +177,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if ($stmt->execute()) {
             // Если заказ успешно создан, уменьшаем количество компонентов на складе
 
-            // // Обновление количества компонентов
-            // foreach ($componentIds as $componentId) {
-            //     if ($componentId) {
-            //         $updateSql = "UPDATE components SET quantity = quantity - 1 WHERE id = ?";
-            //         $updateStmt = $conn->prepare($updateSql);
-            //         $updateStmt->bind_param("i", $componentId);
-            //         if (!$updateStmt->execute()) {
-            //             echo "Error updating component quantity for ID: " . $componentId;
-            //         }
-            //         $updateStmt->close();
-            //     }
-            // }
-
             // Отправка уведомления в Telegram
-            $message = "Новый заказ:\n\nНазвание: {$name}\nГород: {$city}\nОбщая цена: {$final_price}₽ \n @maskarad1313";
+            $message = "Новый заказ:\n\nНазвание: {$name}\nГород: {$city}\nОбщая цена: {$final_price}₽ \n @andreygpu";
             sendTelegramNotification($message);
+            sendTelegramNotification1($message);
 
             // Перенаправление на страницу подтверждения
             echo "Order successfully created!";

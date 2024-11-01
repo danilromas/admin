@@ -5,7 +5,7 @@ require 'config.php';  // Подключение файла конфигурац
 require 'auth.php';
 check_login(); // Проверяет, авторизован ли пользователь
 
-$is_admin = check_role(['admin']); // Проверяет, имеет ли пользователь роль администратора
+$is_admin = check_role(['admin', 'manager', 'assembler']);
 
 if (!$is_admin) {
     header("Location: index.php"); // Перенаправление, если роль не соответствует
@@ -126,41 +126,50 @@ if ($categories_result === false) {
     die("Error fetching categories: " . $conn->error);
 }
 
-// Построение SQL-запроса для вывода данных
-$sql = "SELECT * FROM components WHERE 1=1";
+// Построение SQL-запроса для вывода данных с подзапросом для последней цены
+$sql = "
+    SELECT 
+        c.*, 
+        COALESCE(NULLIF(c.price, 0), (
+            SELECT ca.price 
+            FROM component_arrivals ca 
+            WHERE ca.component_id = c.id 
+            ORDER BY ca.arrival_date DESC 
+            LIMIT 1
+        )) AS display_price
+    FROM components c
+    WHERE 1=1";
 
+// Добавляем условия фильтрации поиска и категории
 $params = [];
 $types = '';
 
 if ($search) {
-    $sql .= " AND name LIKE ?";
+    $sql .= " AND c.name LIKE ?";
     $params[] = '%' . $search . '%';
-    $types .= 's'; // Строковый тип для параметра поиска
+    $types .= 's';
 }
 
 if ($category) {
-    $sql .= " AND category = ?";
+    $sql .= " AND c.category = ?";
     $params[] = $category;
-    $types .= 's'; // Строковый тип для параметра категории
+    $types .= 's';
 }
 
-$sql .= " ORDER BY name";
+$sql .= " ORDER BY c.name";
 
-// Подготовка запроса
+// Подготовка и выполнение запроса
 $stmt = $conn->prepare($sql);
 if ($stmt === false) {
     die("Error preparing statement: " . $conn->error);
 }
 
-// Связывание параметров
 if ($params) {
     $stmt->bind_param($types, ...$params);
 }
 
 $stmt->execute();
 $result = $stmt->get_result();
-
-$conn->close();
 ?>
 
 <!DOCTYPE html>
@@ -254,7 +263,7 @@ $conn->close();
 </head>
 <body>
     <div class="container">
-        <a href="index.html" class="back-button">Back to Index</a>
+        <a href="index.php" class="back-button">Назад</a>
         <h1>Components List</h1>
         <div class="filters">
             <form action="components.php" method="get">
@@ -279,7 +288,7 @@ $conn->close();
                 <tr>
                     <th>ID</th>
                     <th>Name</th>
-                    <th>Price</th>
+                    <?php if ($is_admin == check_role(['admin'])): ?><th>Price</th> <?php endif; ?>
                     <th>Category</th>
                     <th>Photo</th>
                     <th>Quantity</th>
@@ -290,21 +299,26 @@ $conn->close();
                 <?php
                 if ($result->num_rows > 0) {
                     while ($row = $result->fetch_assoc()) {
-                        // Обработка null значений для price
-                        $price = number_format($row['price'], 2);
+                        // Используем поле display_price, которое содержит последнюю цену, если price равно 0
+                        $price = number_format($row['display_price'], 2);
                         
                         echo "<tr>";
                         echo "<td>" . htmlspecialchars($row['id']) . "</td>";
                         echo "<td>" . htmlspecialchars($row['name']) . "</td>";
-                        echo "<td>" . htmlspecialchars($price) . " руб</td>";
+                        if ($is_admin == check_role(['admin'])): // Убедитесь, что вы используете корректный синтаксис
+                            echo "<td>" . htmlspecialchars($price) . " руб</td>";
+                        endif; // Закрываем условие
                         echo "<td>" . htmlspecialchars($row['category']) . "</td>";
                         echo "<td><img src='" . htmlspecialchars($row['photo']) . "' alt='Component Photo' class='photo'></td>";
                         echo "<td>" . htmlspecialchars($row['quantity']) . "</td>";
-                        echo "<td>
+                        if ($is_admin == check_role(['admin'])): // Убедитесь, что вы используете корректный синтаксис
+                            echo "<td>
                             <a class='btn btn-edit' href='edit_component.php?id=" . htmlspecialchars($row['id']) . "'>Edit</a>
                             <a class='btn btn-delete' href='components.php?delete_id=" . htmlspecialchars($row['id']) . "' onclick='return confirm(\"Are you sure you want to delete this component?\")'>Delete</a>
                         </td>";
+                        endif;
                         echo "</tr>";
+                         // Закрываем условие
                     }
                 } else {
                     echo "<tr><td colspan='7'>No components found</td></tr>";

@@ -100,6 +100,14 @@ if (!$is_admin) {
             <label for="price">Price per Unit:</label>
             <input type="number" step="0.01" id="price" name="price" required>
 
+            <!-- Поле для номера накладной -->
+            <label for="invoice_number">Номер накладной:</label>
+            <input type="text" id="invoice_number" name="invoice_number" required>
+
+            <!-- Поле для даты доставки -->
+            <label for="delivery_date">Дата доставки:</label>
+            <input type="date" id="delivery_date" name="delivery_date" required>
+
             <button type="submit">Add Arrival</button>
         </form>
     </div>

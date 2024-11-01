@@ -62,7 +62,7 @@ document.addEventListener("DOMContentLoaded", () => {
         })
         .catch(error => console.error('Error fetching data:', error));
 
-    // Fetch and populate orders tabl
+    // Fetch and populate orders table
     fetch('get_orders.php')
         .then(response => response.json())
         .then(orders => {
