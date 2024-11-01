@@ -356,30 +356,27 @@ tr:hover {
             </thead>
             <tbody>
                 <?php
-                if ($result->num_rows > 0) {
-                    while ($row = $result->fetch_assoc()) {
-                        // Используем поле display_price, которое содержит последнюю цену, если price равно 0
-                        $price = number_format($row['display_price'], 2);
-                        
-                        echo "<tr>";
-                        echo "<td>" . htmlspecialchars($row['id']) . "</td>";
-                        echo "<td>" . htmlspecialchars($row['name']) . "</td>";
-                        if ($is_admin == check_role(['admin'])): // Убедитесь, что вы используете корректный синтаксис
-                            echo "<td>" . htmlspecialchars($price) . " руб</td>";
-                        endif; // Закрываем условие
-                        echo "<td>" . htmlspecialchars($row['category']) . "</td>";
-                        echo "<td><img src='" . htmlspecialchars($row['photo']) . "' alt='Component Photo' class='photo'></td>";
-                        echo "<td>" . htmlspecialchars($row['quantity']) . "</td>";
-                        if ($is_admin == check_role(['admin'])): // Убедитесь, что вы используете корректный синтаксис
-                            echo "<td>
-                            <a class='btn btn-edit' href='edit_component.php?id=" . htmlspecialchars($row['id']) . "'>Edit</a>
-                            <a class='btn btn-delete' href='components.php?delete_id=" . htmlspecialchars($row['id']) . "' onclick='return confirm(\"Are you sure you want to delete this component?\")'>Delete</a>
-                        </td>";
-                        endif;
-                        echo "</tr>";
-                         // Закрываем условие
+               if ($result->num_rows > 0) {
+                while ($row = $result->fetch_assoc()) {
+                    // Используем поле display_price, которое содержит последнюю цену, если price равно 0
+                    $price = number_format($row['display_price'] ?? 0, 2); // Исправлено здесь
+                    
+                    echo "<tr>";
+                    echo "<td>" . htmlspecialchars($row['id']) . "</td>";
+                    echo "<td>" . htmlspecialchars($row['name']) . "</td>";
+                    if ($is_admin == check_role(['admin'])) {
+                        echo "<td>" . $price . "</td>"; // Цена
                     }
-                } else {
+                    echo "<td>" . htmlspecialchars($row['category']) . "</td>";
+                    echo "<td><img src='" . htmlspecialchars($row['photo']) . "' class='photo'></td>";
+                    echo "<td>" . htmlspecialchars($row['quantity']) . "</td>";
+                    echo "<td>
+                            <a href='edit_component.php?id=" . htmlspecialchars($row['id']) . "' class='btn btn-edit'>Edit</a>
+                            <a href='components.php?delete_id=" . htmlspecialchars($row['id']) . "' class='btn btn-delete'>Delete</a>
+                          </td>";
+                    echo "</tr>";
+                }
+            } else {
                     echo "<tr><td colspan='7'>No components found</td></tr>";
                 }
                 ?>
