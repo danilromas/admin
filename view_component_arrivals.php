@@ -174,14 +174,14 @@ $conn->close();
         if ($result_arrivals && $result_arrivals->num_rows > 0) {
             while ($row = $result_arrivals->fetch_assoc()) {
                 echo "<tr>";
-                echo "<td>" . htmlspecialchars($row['id']) . "</td>";
-                echo "<td>" . htmlspecialchars($row['component_name']) . "</td>";
-                echo "<td>" . htmlspecialchars($row['quantity']) . "</td>";
-                echo "<td>" . htmlspecialchars($row['price']) . "</td>";
-                echo "<td>" . htmlspecialchars($row['arrival_date']) . "</td>";
-                echo "<td>" . htmlspecialchars($row['delivery_date']) . "</td>";
-                echo "<td>" . htmlspecialchars($row['invoice_number']) . "</td>";
-                echo "<td>" . htmlspecialchars($row['status']) . "</td>";
+                echo "<td>" . htmlspecialchars($row['id'] ?? '') . "</td>";
+                echo "<td>" . htmlspecialchars($row['component_name'] ?? '') . "</td>";
+                echo "<td>" . htmlspecialchars($row['quantity'] ?? '') . "</td>";
+                echo "<td>" . htmlspecialchars($row['price'] ?? '') . "</td>";
+                echo "<td>" . htmlspecialchars($row['arrival_date'] ?? '') . "</td>";
+                echo "<td>" . htmlspecialchars($row['delivery_date'] ?? '') . "</td>";
+                echo "<td>" . htmlspecialchars($row['invoice_number'] ?? '') . "</td>";
+                echo "<td>" . htmlspecialchars($row['status'] ?? '') . "</td>";
                 echo "<td>";
                 if ($row['status'] == 'in_transit') {
                     echo "<form action='view_component_arrivals.php' method='post' style='display:inline;'>

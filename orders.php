@@ -32,7 +32,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->fetch();
         $stmt->close();
 
-        $status = $conn->real_escape_string($_POST['status']);
+        // Отладка: проверьте, что статус приходит из формы
+        $status = isset($_POST['status']) ? $_POST['status'] : null;
+        if ($status === null) {
+            echo "<p>Статус не был передан из формы.</p>";
+            return; // Завершаем выполнение, если статус не передан
+        }
+
+        // Экранирование входящих данных
+        $status = $conn->real_escape_string($status);
         $additional_price = floatval($_POST['additional_price']); // Получаем значение из формы
 
         // Получение текущей итоговой цены
@@ -44,19 +52,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->fetch();
         $stmt->close();
 
-        // Обновляем total_price
-        $final_price = $current_total_price + $additional_price;
-
         // Обновление статуса и final_price
+        // Если вы хотите сохранить текущее значение total_price без изменений
+        $final_price = $current_total_price; // Используем текущее значение без изменений
+
         $sql = "UPDATE orders SET status = ?, total_price = ? WHERE id = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("sdi", $status, $final_price, $order_id);
 
         if ($stmt->execute()) {
-            echo "<p>Order status updated successfully.</p>";
+            echo "<p>Статус заказа обновлён успешно.</p>";
         
             // Формирование сообщения с именем заказа
-            $message = "Статус заказа: Имя заказчика: '$order_name' изменен на '$status' для заказа ID: $order_id.";
+            $message = "Статус заказа: Имя заказчика: '$order_name' изменён на '$status' для заказа ID: $order_id.";
             sendTelegramMessage($message);
         
             // Если статус изменился на "куплен", обновляем количество компонентов
@@ -103,14 +111,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         $updateStmt = $conn->prepare($updateSql);
                         $updateStmt->bind_param("i", $componentId);
                         if (!$updateStmt->execute()) {
-                            echo "Error updating component quantity for ID: " . $componentId;
+                            echo "Ошибка обновления количества компонента с ID: " . $componentId;
                         }
                         $updateStmt->close();
                     }
                 }
             }
         } else {
-            echo "<p>Error: " . $stmt->error . "</p>";
+            echo "<p>Ошибка обновления: " . $stmt->error . "</p>";
         }
 
         $stmt->close();
@@ -122,14 +130,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->bind_param("i", $order_id);
 
         if ($stmt->execute()) {
-            echo "<p>Order deleted successfully.</p>";
+            echo "<p>Заказ успешно удалён.</p>";
         } else {
-            echo "<p>Error: " . $stmt->error . "</p>";
+            echo "<p>Ошибка: " . $stmt->error . "</p>";
         }
 
         $stmt->close();
     }
 }
+
 
 
 // Get sorting parameters
@@ -420,12 +429,12 @@ input[type="submit"]:hover {
                     <form action="orders.php" method="POST" style="display:inline;">
                         <input type="hidden" name="order_id" value="<?php echo htmlspecialchars($row['order_id'] ?? ''); ?>">
                         <select name="status" class="status-select">
-                            <option value="Создан(на согласовании)" <?php echo ($row['status'] ?? '') == 'Создан(на согласовании)' ? 'selected' : ''; ?>>Создан(на согласовании)</option>
-                            <option value="Согласован" <?php echo ($row['status'] ?? '') == 'Согласован' ? 'selected' : ''; ?>>Согласован</option>
-                            <option value="У СБ " <?php echo ($row['status'] ?? '') == 'У СБ ' ? 'selected' : ''; ?>>У СБ </option>
-                            <option value="В пути " <?php echo ($row['status'] ?? '') == 'В пути ' ? 'selected' : ''; ?>>В пути</option>
-                            <option value="куплен" <?php echo ($row['status'] ?? '') == 'куплен' ? 'selected' : ''; ?>>куплен</option>
-                            <option value="отказ" <?php echo ($row['status'] ?? '') == 'отказ' ? 'selected' : ''; ?>>отказ</option>
+                        <option value="Создан(на согласовании)" <?php echo ($row['status'] ?? '') == 'Создан(на согласовании)' ? 'selected' : ''; ?>>Создан(на согласовании)</option>
+                        <option value="Согласован" <?php echo ($row['status'] ?? '') == 'Согласован' ? 'selected' : ''; ?>>Согласован</option>
+                        <option value="У СБ" <?php echo ($row['status'] ?? '') == 'У СБ' ? 'selected' : ''; ?>>У СБ</option>
+                        <option value="В пути" <?php echo ($row['status'] ?? '') == 'В пути' ? 'selected' : ''; ?>>В пути</option>
+                        <option value="куплен" <?php echo ($row['status'] ?? '') == 'куплен' ? 'selected' : ''; ?>>куплен</option>
+                        <option value="отказ" <?php echo ($row['status'] ?? '') == 'отказ' ? 'selected' : ''; ?>>отказ</option>
                         </select>
                         <input type="hidden" name="additional_price" value="<?php echo htmlspecialchars($row['additional_price'] ?? ''); ?>"> <!-- Добавляем дополнительную цену -->
                         <input type="submit" name="update_status" class="update-status" value="Update Status">
