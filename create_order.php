@@ -154,12 +154,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             computer_id, date, name, city, delivery, 
             motherboard_id, processor_id, ram_id, gpu_id, psu_id,
             ssd_id, hdd_id, case_id, cpu_cooler_id, extra_cooler_id, 
-            additional, additional_price, total_price
+            additional, additional_price, total_price, status
         ) VALUES (
             ?, ?, ?, ?, ?,
             ?, ?, ?, ?, ?,
             ?, ?, ?, ?, ?, 
-            ?, ?, ?
+            ?, ?, ?, 'принят'
         )
     ";
     $stmt = $conn->prepare($sql);

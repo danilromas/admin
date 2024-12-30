@@ -369,6 +369,7 @@ input[type="submit"]:hover {
             </div>
             
             <input type="submit" value="Add Computer Build">
+            
         </form>
 
         <?php

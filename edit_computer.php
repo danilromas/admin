@@ -249,7 +249,7 @@ function generateOptions($components, $type, $selectedId) {
         <label for="extra_cooler">Extra Cooler:</label>
         <select id="extra_cooler" name="extra_cooler">
             <option value="">Not Selected</option>
-            <?php echo generateOptions($components, "Дополнительный куллер", $computer['extra_cooler_id']); ?>
+            <?php echo generateOptions($components, "Куллер (доп)", $computer['extra_cooler_id']); ?>
         </select>
 
         <label for="case_photo">Case Photo:</label>

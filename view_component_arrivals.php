@@ -1,17 +1,14 @@
 <?php
 require 'auth.php';
-check_login(); // Проверяет, авторизован ли пользователь
-
-$is_admin = check_role(['admin']); // Проверяет, имеет ли пользователь роль администратора
+check_login();
+$is_admin = check_role(['admin', 'manager', 'assembler']);
 
 if (!$is_admin) {
-    header("Location: index.php"); // Перенаправление, если роль не соответствует
+    header("Location: index.php");
     exit();
 }
-?>
 
-<?php
-require 'config.php';  // Подключение файла конфигурации
+require 'config.php';
 
 $conn = new mysqli($db_config['servername'], $db_config['username'], $db_config['password'], $db_config['dbname']);
 
@@ -19,14 +16,13 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-$conn->set_charset("utf8mb4"); // Установите кодировку
+$conn->set_charset("utf8mb4");
 
-// Обработка POST-запроса для обновления статуса
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    ob_start(); // Начало буферизации вывода
     if (isset($_POST['deliver_id'])) {
         $deliver_id = intval($_POST['deliver_id']);
 
-        // Обновление статуса поступления на "доставлен"
         $stmt_update = $conn->prepare("
             UPDATE component_arrivals
             SET status = 'delivered'
@@ -36,7 +32,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt_update->execute();
         $stmt_update->close();
 
-        // Обновление количества компонента на складе
         $stmt_component = $conn->prepare("
             UPDATE components
             SET quantity = quantity + (
@@ -54,7 +49,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt_component->execute();
         $stmt_component->close();
 
-        // Перенаправление на текущую страницу после обновления
+        ob_end_clean(); // Очищаем буфер
         header("Location: view_component_arrivals.php");
         exit();
     }
@@ -62,7 +57,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['delete_id'])) {
         $delete_id = intval($_POST['delete_id']);
 
-        // Удаление записи о поступлении
         $stmt_delete = $conn->prepare("
             DELETE FROM component_arrivals
             WHERE id = ?
@@ -71,7 +65,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt_delete->execute();
         $stmt_delete->close();
 
-        // Перенаправление на текущую страницу после удаления
+        ob_end_clean();
         header("Location: view_component_arrivals.php");
         exit();
     }
@@ -86,10 +80,9 @@ $sql_arrivals = "
 ";
 
 $result_arrivals = $conn->query($sql_arrivals);
-
-// Закрытие соединения
 $conn->close();
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -163,7 +156,7 @@ $conn->close();
             <th>ID</th>
             <th>Компонент</th>
             <th>Количество</th>
-            <th>Цена</th>
+            <?php if ($is_admin == check_role(['admin'])): ?><th>Цена</th> <?php endif; ?>
             <th>Дата</th>
             <th>Дата поступления</th>
             <th>Номер накладной</th> <!-- Новая колонка для номера накладной -->
@@ -177,7 +170,10 @@ $conn->close();
                 echo "<td>" . htmlspecialchars($row['id'] ?? '') . "</td>";
                 echo "<td>" . htmlspecialchars($row['component_name'] ?? '') . "</td>";
                 echo "<td>" . htmlspecialchars($row['quantity'] ?? '') . "</td>";
-                echo "<td>" . htmlspecialchars($row['price'] ?? '') . "</td>";
+                if ($is_admin == check_role(['admin'])) {
+                    echo "<td>" . htmlspecialchars($row['price'] ?? '') . "</td>"; // Цена
+                }
+               
                 echo "<td>" . htmlspecialchars($row['arrival_date'] ?? '') . "</td>";
                 echo "<td>" . htmlspecialchars($row['delivery_date'] ?? '') . "</td>";
                 echo "<td>" . htmlspecialchars($row['invoice_number'] ?? '') . "</td>";
@@ -194,6 +190,7 @@ $conn->close();
                 echo "<form action='view_component_arrivals.php' method='post' style='display:inline;'>
                     <input type='hidden' name='delete_id' value='" . htmlspecialchars($row['id']) . "'>
                     <button type='submit' class='btn-delete'>Удалить</button>
+                    
                 </form>";
                 echo "</td>";
                 echo "</tr>";

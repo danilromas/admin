@@ -10,8 +10,14 @@ if ($conn->connect_error) {
 $conn->set_charset("utf8mb4");
 
 // Получаем даты из GET-параметров
+
 $start_date = isset($_GET['start_date']) ? $_GET['start_date'] : '1970-01-01';
 $end_date = isset($_GET['end_date']) ? $_GET['end_date'] : date('Y-m-d');
+
+$sales_goal = isset($_GET['sales_goal']) ? (int)$_GET['sales_goal'] : 0;
+$revenue_goal = isset($_GET['revenue_goal']) ? (int)$_GET['revenue_goal'] : 0;
+$markup_goal = isset($_GET['markup_goal']) ? (int)$_GET['markup_goal'] : 0;
+
 
 // Получение данных о заказах
 // Запрос на данные о заказах и наценке на компьютеры с учётом магазинов
@@ -64,7 +70,10 @@ $response = [
     'totalSales' => $total_sales,
     'totalRevenue' => $total_revenue,
     'totalMarkup' => $total_markup,
-    'totalExpenses' => $total_expenses
+    'totalExpenses' => $total_expenses,
+    'salesGoal' => $sales_goal,
+    'revenueGoal' => $revenue_goal,
+    'markupGoal' => $markup_goal,
 ];
 
 echo json_encode($response);

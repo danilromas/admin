@@ -294,34 +294,6 @@ canvas {
             </tbody>
         </table>
 
-        <h2>Components Expenses</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Component Name</th>
-                    <th>Total Quantity</th>
-                    <th>Total Cost</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php
-                foreach ($components_data as $component) {
-                    echo "<tr>";
-                    echo "<td>" . htmlspecialchars($component['name']) . "</td>";
-                    echo "<td>" . htmlspecialchars($component['quantity']) . "</td>";
-                    echo "<td>" . htmlspecialchars($component['cost']) . " руб</td>";
-                    echo "</tr>";
-                }
-                ?>
-            </tbody>
-            <tfoot>
-                <tr>
-                    <td><strong>Total</strong></td>
-                    <td><strong><?php echo htmlspecialchars($total_quantity); ?></strong></td>
-                    <td><strong><?php echo htmlspecialchars(number_format($total_cost, 2)); ?>руб.</strong></td>
-                </tr>
-            </tfoot>
-        </table>
 
         <h2>Store Expenses</h2>
         <table>
@@ -363,6 +335,8 @@ canvas {
                 </tr>
             </tfoot>
         </table>
+
+        
 
         <div class="charts">
             <canvas id="profitChart"></canvas>
@@ -412,6 +386,35 @@ canvas {
                 }
             });
         </script>
+        <h2>Components Expenses</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Component Name</th>
+                    <th>Total Quantity</th>
+                    <th>Total Cost</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php
+                foreach ($components_data as $component) {
+                    echo "<tr>";
+                    echo "<td>" . htmlspecialchars($component['name']) . "</td>";
+                    echo "<td>" . htmlspecialchars($component['quantity']) . "</td>";
+                    echo "<td>" . htmlspecialchars($component['cost']) . " руб</td>";
+                    echo "</tr>";
+                }
+                ?>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td><strong>Total</strong></td>
+                    <td><strong><?php echo htmlspecialchars($total_quantity); ?></strong></td>
+                    <td><strong><?php echo htmlspecialchars(number_format($total_cost, 2)); ?>руб.</strong></td>
+                </tr>
+            </tfoot>
+        </table>
     </div>
+    
 </body>
 </html>

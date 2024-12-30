@@ -53,54 +53,57 @@ if (isset($_GET['category'])) {
     $category = $conn->real_escape_string($_GET['category']);
 }
 
-// Построение SQL-запроса для вычисления средней цены
 $sql_avg_price = "
-    SELECT
+    SELECT 
         c.id,
         c.name,
-        CASE
-            WHEN (c.quantity - IFNULL(SUM(ca.quantity), 0)) >= 0
-            THEN (
-                (c.price * (c.quantity - IFNULL(SUM(ca.quantity), 0))) + IFNULL(SUM(ca.price * ca.quantity), 0)
-            ) / c.quantity
-            ELSE IFNULL(SUM(ca.price * ca.quantity), 0) / IFNULL(SUM(ca.quantity), 0)
-        END AS average_price
+        COALESCE((
+            SELECT ca.price
+            FROM component_arrivals ca
+            WHERE ca.component_id = c.id
+            ORDER BY ca.arrival_date DESC
+            LIMIT 1
+        ), c.price) AS average_price
     FROM components c
-    LEFT JOIN component_arrivals ca ON c.id = ca.component_id
-    WHERE 1=1";
+    WHERE 1=1"; // Базовое условие
 
-$params_avg_price = [];
+// Инициализация переменных
 $types_avg_price = '';
+$params_avg_price = [];
 
+// Условия поиска и фильтрации
 if ($search) {
     $sql_avg_price .= " AND c.name LIKE ?";
     $params_avg_price[] = '%' . $search . '%';
-    $types_avg_price .= 's'; // Строковый тип для параметра поиска
+    $types_avg_price .= 's';
 }
 
 if ($category) {
     $sql_avg_price .= " AND c.category = ?";
     $params_avg_price[] = $category;
-    $types_avg_price .= 's'; // Строковый тип для параметра категории
+    $types_avg_price .= 's';
 }
 
 $sql_avg_price .= " GROUP BY c.id";
 
+// Подготовка запроса
 $stmt_avg_price = $conn->prepare($sql_avg_price);
 if ($stmt_avg_price === false) {
     die("Error preparing average price statement: " . $conn->error);
 }
 
-// Связывание параметров для среднего запроса
-if ($params_avg_price) {
+// Привязка параметров
+if (!empty($params_avg_price)) {
     $stmt_avg_price->bind_param($types_avg_price, ...$params_avg_price);
 }
 
+// Выполнение запроса
 $stmt_avg_price->execute();
 $result_avg_price = $stmt_avg_price->get_result();
 if ($result_avg_price === false) {
     die("Error executing average price statement: " . $stmt_avg_price->error);
 }
+
 
 // Обновление цен в таблице components
 $update_sql = "UPDATE components SET price = ? WHERE id = ?";

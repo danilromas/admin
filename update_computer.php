@@ -21,7 +21,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $final_price = floatval($_POST['final_price']);
     $shop = $_POST['shop'];
 
-    // Обработка загруженного файла
+    // Создание соединения
+    $conn = new mysqli($db_config['servername'], $db_config['username'], $db_config['password'], $db_config['dbname']);
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
+
+    // Проверяем, было ли загружено новое фото
     $photoPath = null;
     if (isset($_FILES['case_photo']) && $_FILES['case_photo']['error'] === UPLOAD_ERR_OK) {
         $uploadDir = 'uploads/';
@@ -30,15 +36,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (move_uploaded_file($_FILES['case_photo']['tmp_name'], $uploadFile)) {
             $photoPath = $uploadFile1;
         }
+    } else {
+        // Если новое фото не загружено, получаем текущее значение из базы данных
+        $sql = "SELECT case_photo FROM computers WHERE id = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $stmt->bind_result($currentPhoto);
+        $stmt->fetch();
+        $stmt->close();
+
+        $photoPath = $currentPhoto; // Сохраняем текущее фото
     }
 
-    // Создание соединения
-    $conn = new mysqli($db_config['servername'], $db_config['username'], $db_config['password'], $db_config['dbname']);
-    if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error);
-    }
-
-    // Подготовка SQL-запроса
+    // Подготовка SQL-запроса для обновления
     $sql = "UPDATE computers SET 
         name = ?, 
         motherboard_id = ?, 
@@ -58,14 +69,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         shop = ? 
         WHERE id = ?";
 
-    // Подготовка и проверка SQL-запроса
     $stmt = $conn->prepare($sql);
     if ($stmt === false) {
         die("Prepare failed: " . $conn->error);
     }
-
-    // Если нет фото, передаем пустую строку
-    $photoPath = $photoPath ? $photoPath : '';
 
     // Привязка параметров
     $stmt->bind_param(

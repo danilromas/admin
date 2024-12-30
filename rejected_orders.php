@@ -257,16 +257,16 @@ input[type="submit"]:hover {
                 <td><?php echo htmlspecialchars($row['shop_name']); ?></td>
                 <td>
     <ul style="list-style-type: none; padding-left: 0; margin: 0;">
-        <li><strong>Motherboard:</strong> <?php echo htmlspecialchars($row['motherboard_name']); ?></li>
-        <li><strong>Processor:</strong> <?php echo htmlspecialchars($row['processor_name']); ?></li>
-        <li><strong>RAM:</strong> <?php echo htmlspecialchars($row['ram_name']); ?></li>
-        <li><strong>GPU:</strong> <?php echo htmlspecialchars($row['gpu_name']); ?></li>
-        <li><strong>PSU:</strong> <?php echo htmlspecialchars($row['psu_name']); ?></li>
-        <li><strong>SSD:</strong> <?php echo htmlspecialchars($row['ssd_name']); ?></li>
-        <li><strong>HDD:</strong> <?php echo htmlspecialchars($row['hdd_name']); ?></li>
-        <li><strong>Case:</strong> <?php echo htmlspecialchars($row['case_name']); ?></li>
-        <li><strong>CPU Cooler:</strong> <?php echo htmlspecialchars($row['cpu_cooler_name']); ?></li>
-        <li><strong>Extra Cooler:</strong> <?php echo htmlspecialchars($row['extra_cooler_name']); ?></li>
+    <li><strong>Processor:</strong> <?php echo htmlspecialchars($row['processor_name'] ?? ''); ?></li>
+    <li><strong>RAM:</strong> <?php echo htmlspecialchars($row['ram_name'] ?? ''); ?></li>
+    <li><strong>GPU:</strong> <?php echo htmlspecialchars($row['gpu_name'] ?? ''); ?></li>
+    <li><strong>PSU:</strong> <?php echo htmlspecialchars($row['psu_name'] ?? ''); ?></li>
+    <li><strong>SSD:</strong> <?php echo htmlspecialchars($row['ssd_name'] ?? ''); ?></li>
+    <li><strong>HDD:</strong> <?php echo htmlspecialchars($row['hdd_name'] ?? ''); ?></li>
+    <li><strong>Case:</strong> <?php echo htmlspecialchars($row['case_name'] ?? ''); ?></li>
+    <li><strong>CPU Cooler:</strong> <?php echo htmlspecialchars($row['cpu_cooler_name'] ?? ''); ?></li>
+    <li><strong>Extra Cooler:</strong> <?php echo htmlspecialchars($row['extra_cooler_name'] ?? ''); ?></li>
+
     </ul>
         </td>
             </tr>

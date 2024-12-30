@@ -1,5 +1,8 @@
 <?php
+require 'auth.php';
 require 'config.php';  // Подключение файла конфигурации
+
+check_login(); // Проверяет, авторизован ли пользователь
 
 // Создание соединения
 $conn = new mysqli($db_config['servername'], $db_config['username'], $db_config['password'], $db_config['dbname']);
@@ -8,8 +11,9 @@ $conn = new mysqli($db_config['servername'], $db_config['username'], $db_config[
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
-require 'auth.php'; // Убедитесь, что путь к файлу правильный
-$is_admin = check_role(['admin']) ? true : false;
+
+
+$is_admin = check_role(['admin']); // Проверяет, имеет ли пользователь роль администратора
 
 // Установка кодировки соединения
 $conn->set_charset("utf8mb4");
@@ -30,7 +34,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['id'])) {
     die("Invalid request.");
 }
 
-// Получение всех компонентов с их ценами и количеством
+// Получение всех компонентов с их ценами
 $components = [];
 $sql = "SELECT id, name, category, price, quantity FROM components";
 $result = $conn->query($sql);
@@ -39,21 +43,6 @@ if ($result) {
     while ($row = $result->fetch_assoc()) {
         $components[$row['category']][$row['id']] = $row;
     }
-}
-
-// Функция для генерации HTML опций
-function generateOptions($components, $type, $selectedId) {
-    $html = '';
-    if (isset($components[$type])) {
-        foreach ($components[$type] as $component) {
-            $selected = ($component['id'] == $selectedId) ? ' selected' : '';
-            $disabled = ($component['quantity'] <= 0) ? ' disabled' : '';
-            $availabilityText = ($component['quantity'] <= 0) ? " (Нет в наличии)" : "";
-            $priceText = $is_admin ? " - {$component['price']} руб" : ""; // Показывать цену только админу
-            $html .= "<option value=\"{$component['id']}\"$selected$disabled>{$component['name']}{$priceText}{$availabilityText}</option>";
-        }
-    }
-    return $html;
 }
 
 // Расчет итоговой цены на основе выбранных компонентов и добавления markup
@@ -91,6 +80,26 @@ $additionalPrice = floatval($computer['additional_price'] ?? 0); // Предпо
 
 // Пересчитываем итоговую цену
 $finalPrice = calculateFinalPrice($selectedComponentIds, $components, $markup, $additionalPrice);
+
+// Функция для генерации HTML опций с проверкой наличия компонента
+function generateOptions($components, $type, $selectedId, $is_admin = false) {
+    // Выполняем проверку роли админа до вызова функции
+    if (empty($is_admin)) {
+        $is_admin = check_role(['admin']);
+    }
+    
+    $html = '';
+    if (isset($components[$type])) {
+        foreach ($components[$type] as $component) {
+            $selected = ($component['id'] == $selectedId) ? ' selected' : '';
+            $availability = ($component['quantity'] == 0) ? ' (нет в наличии)' : '';
+            $price = $is_admin ? " - {$component['price']} руб" : ''; // Цена только для администратора
+            $html .= "<option value=\"{$component['id']}\"$selected>{$component['name']}$price$availability</option>";
+        }
+    }
+    return $html;
+}
+
 
 $conn->close();
 ?>
@@ -259,9 +268,16 @@ $conn->close();
             </select>
 
             <label for="extra_cooler">Extra Cooler:</label>
-            <select id="extra_cooler" name="extra_cooler">
+            <select id="extra_cooler" name="extra_cooler" required>
                 <option value="">Not Selected</option>
-                <?php echo generateOptions($components, 'Дополнительный куллер', $computer['extra_cooler_id']); ?>
+                    <?php 
+                        // Выводим опции для extra_cooler
+                        if (!empty($components['Куллер (доп)'])) {
+                            echo generateOptions($components, 'Куллер (доп)', $computer['extra_cooler_id'], $is_admin); 
+                        } else {
+                            echo '<option value="">No Coolers Available</option>';
+                        }
+                    ?>
             </select>
 
             <label for="additional">Additional Components:</label>

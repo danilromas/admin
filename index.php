@@ -78,6 +78,10 @@ $is_admin = check_role(['admin', 'manager', 'assembler']);
                         <span class="material-icons-sharp">account_balance_wallet</span>
                         <h3>Добавить расходы</h3>
                     </a>
+                    <a href="changes.php">
+                        <span class="material-icons-sharp">history</span>
+                        <h3>История</h3>
+                    </a>
                     <a href="logout.php">
                         <span class="material-icons-sharp">logout</span>
                         <h3>Выйти</h3>
@@ -89,6 +93,30 @@ $is_admin = check_role(['admin', 'manager', 'assembler']);
             <!-- Main Content -->
             <main>
                 <h1>Analytics</h1>
+                <!-- Форма для выбора даты и установки целей -->
+    <form id="analytics-form">
+        <div>
+            <label for="start-date">Start Date:</label>
+            <input type="date" id="start-date" name="start_date" required>
+        </div>
+        <div>
+            <label for="end-date">End Date:</label>
+            <input type="date" id="end-date" name="end_date" required>
+        </div>
+        <div>
+            <label for="sales-goal">Sales Goal:</label>
+            <input type="number" id="sales-goal" name="sales_goal" placeholder="45" required>
+        </div>
+        <div>
+            <label for="revenue-goal">Revenue Goal:</label>
+            <input type="number" id="revenue-goal" name="revenue_goal" placeholder="2000000" required>
+        </div>
+        <div>
+            <label for="markup-goal">Markup Goal:</label>
+            <input type="number" id="markup-goal" name="markup_goal" placeholder="300000" required>
+        </div>
+        <button type="submit">Apply</button>
+    </form>
                 <?php if ($is_admin == check_role(['admin'])): ?>
                                 <!-- Analyses -->
                                 <div class="analyse">
@@ -142,30 +170,38 @@ $is_admin = check_role(['admin', 'manager', 'assembler']);
                     </div>
                 </div>
                 <script>
-                    document.addEventListener('DOMContentLoaded', function() {
-                        fetch('get_analytics.php')
-                            .then(response => response.json())
-                            .then(data => {
-                                // Update total sales
-                                document.getElementById('total-sales').innerText = `${data.totalSales}`;
-                                document.getElementById('total-revenue').innerText = `${data.totalRevenue} руб`;
-                                document.getElementById('total-markup').innerText = `${data.totalMarkup} руб`;
-                                
-                                // Update progress circles (dummy example with fixed percentages)
-                                // These percentage values can be dynamically calculated if needed
-                                document.getElementById('sales-circle').style.strokeDasharray = `${data.totalSales / 1000 * 2.28}, 228`;
-                                document.getElementById('revenue-circle').style.strokeDasharray = `${data.totalRevenue / 1000 * 2.28}, 228`;
-                                document.getElementById('markup-circle').style.strokeDasharray = `${data.totalMarkup / 1000 * 2.28}, 228`;
-                                
-                                // Dummy percentage calculations
-                                document.getElementById('sales-percentage').innerText = `${(data.totalSales / 1000 * 100).toFixed(2)}%`;
-                                document.getElementById('revenue-percentage').innerText = `${(data.totalRevenue / 1000 * 100).toFixed(2)}%`;
-                                document.getElementById('markup-percentage').innerText = `${(data.totalMarkup / 1000 * 100).toFixed(2)}%`;
-                            })
-                            .catch(error => console.error('Error fetching analytics data:', error));
-                    });
-                </script>
-            
+        document.getElementById('analytics-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            // Собираем данные из формы
+            const formData = new FormData(this);
+            const params = new URLSearchParams(formData).toString();
+
+            // Делаем запрос к get_analytics.php
+            fetch(`get_analytics.php?${params}`)
+                .then(response => response.json())
+                .then(data => {
+                    // Обновляем данные аналитики
+                    document.getElementById('total-sales').innerText = `${data.totalSales}`;
+                    document.getElementById('total-revenue').innerText = `${data.totalRevenue} руб`;
+                    document.getElementById('total-markup').innerText = `${data.totalMarkup} руб`;
+
+                    // Обновляем круги прогресса
+                    const salesGoal = parseFloat(formData.get('sales_goal')) || 1;
+                    const revenueGoal = parseFloat(formData.get('revenue_goal')) || 1;
+                    const markupGoal = parseFloat(formData.get('markup_goal')) || 1;
+
+                    document.getElementById('sales-circle').style.strokeDasharray = `${data.totalSales / salesGoal * 228}, 228`;
+                    document.getElementById('revenue-circle').style.strokeDasharray = `${data.totalRevenue / revenueGoal * 228}, 228`;
+                    document.getElementById('markup-circle').style.strokeDasharray = `${data.totalMarkup / markupGoal * 228}, 228`;
+
+                    document.getElementById('sales-percentage').innerText = `${(data.totalSales / salesGoal * 100).toFixed(2)}%`;
+                    document.getElementById('revenue-percentage').innerText = `${(data.totalRevenue / revenueGoal * 100).toFixed(2)}%`;
+                    document.getElementById('markup-percentage').innerText = `${(data.totalMarkup / markupGoal * 100).toFixed(2)}%`;
+                })
+                .catch(error => console.error('Error fetching analytics data:', error));
+        });
+    </script>
                 <!-- End of Analyses -->
                 <?php endif; ?>
 
