@@ -32,7 +32,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->fetch();
         $stmt->close();
 
-        // Отладка: проверьте, что статус приходит из формы
+        // Проверка переданного статуса
         $status = isset($_POST['status']) ? $_POST['status'] : null;
         if ($status === null) {
             echo "<p>Статус не был передан из формы.</p>";
@@ -52,13 +52,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->fetch();
         $stmt->close();
 
-        // Обновление статуса и final_price
-        // Если вы хотите сохранить текущее значение total_price без изменений
+        // Обновление статуса и даты
         $final_price = $current_total_price; // Используем текущее значение без изменений
 
-        $sql = "UPDATE orders SET status = ?, total_price = ? WHERE id = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("sdi", $status, $final_price, $order_id);
+        $current_date = date('Y-m-d'); // Получение текущей даты
+
+        if ($status === 'куплен') {
+            $sql = "UPDATE orders SET status = ?, total_price = ?, date = ? WHERE id = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("sdsi", $status, $final_price, $current_date, $order_id);
+        } else {
+            $sql = "UPDATE orders SET status = ?, total_price = ? WHERE id = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("sdi", $status, $final_price, $order_id);
+        }
+        
 
         if ($stmt->execute()) {
             echo "<p>Статус заказа обновлён успешно.</p>";
@@ -67,8 +75,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $message = "Статус заказа: Имя заказчика: '$order_name' изменён на '$status' для заказа ID: $order_id.";
             sendTelegramMessage($message);
         
-            // Если статус изменился на "куплен", обновляем количество компонентов
-            if ($status === 'куплен') {
+            // Если статус изменился на "куплено", обновляем количество компонентов
+            if ($status === 'куплено') {
                 // Получение всех компонентов из заказа
                 $sqlGetComponents = "
                     SELECT 
@@ -138,6 +146,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->close();
     }
 }
+
 
 
 
