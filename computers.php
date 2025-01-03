@@ -16,7 +16,7 @@ if ($conn->connect_error) {
 }
 
 // Получение всех компонентов
-$sql = "SELECT id, name, price FROM components";
+$sql = "SELECT id, name, price, quantity FROM components"; // Добавлено поле quantity
 $result = $conn->query($sql);
 
 $components = [];
@@ -287,7 +287,9 @@ function calculateBasePrice($componentIds, $components) {
                     echo '<h3>' . htmlspecialchars($computerRow['name']) . '</h3>';
             
                     // Вывод компонентов
+
                     echo '<ul>';
+                    
                     $componentsList = [
                         'Motherboard' => $computerRow['motherboard_id'],
                         'Processor' => $computerRow['processor_id'],
@@ -300,14 +302,21 @@ function calculateBasePrice($componentIds, $components) {
                         'CPU Cooler' => $computerRow['cpu_cooler_id'],
                         'Extra Cooler' => $computerRow['extra_cooler_id']
                     ];
-
+                    
                     foreach ($componentsList as $type => $id) {
-                        if (isset($components[$id])) {
-                            echo '<li><strong>' . htmlspecialchars($type) . ':</strong> ' . htmlspecialchars($components[$id]['name']) . ' - ' . htmlspecialchars($components[$id]['price']) . ' руб. </li>';
+                        if (!empty($components[$id])) { // Проверяем, существует ли компонент в массиве $components
+                            $component = $components[$id];
+                            $componentName = htmlspecialchars($component['name'] ?? 'Unknown'); // Установка имени
+                            $componentPrice = htmlspecialchars($component['price'] ?? '0.00'); // Цена компонента
+                            $componentQuantity = htmlspecialchars($component['quantity'] ?? 'Unknown'); // Количество компонентов
+                            
+                            echo "<li><strong>{$type}:</strong> {$componentName} - {$componentPrice} руб.";
+                            echo " (Количество: {$componentQuantity})</li>"; // Добавлено количество
                         } else {
                             echo '<li><strong>' . htmlspecialchars($type) . ':</strong> Unknown</li>';
                         }
                     }
+                    
                     echo '</ul>';
 
                     if ($is_admin == check_role(['admin'])){

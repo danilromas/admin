@@ -71,7 +71,6 @@ $selectedComponentIds = [
     $computer['hdd_id'] ?? 0,
     $computer['case_id'] ?? 0,
     $computer['cpu_cooler_id'] ?? 0,
-    $computer['extra_cooler_id'] ?? 0,
 ];
 
 // Добавляем markup и цену дополнений к финальной цене
@@ -268,16 +267,9 @@ $conn->close();
             </select>
 
             <label for="extra_cooler">Extra Cooler:</label>
-            <select id="extra_cooler" name="extra_cooler" required>
+             <select id="extra_cooler" name="extra_cooler">
                 <option value="">Not Selected</option>
-                    <?php 
-                        // Выводим опции для extra_cooler
-                        if (!empty($components['Куллер (доп)'])) {
-                            echo generateOptions($components, 'Куллер (доп)', $computer['extra_cooler_id'], $is_admin); 
-                        } else {
-                            echo '<option value="">No Coolers Available</option>';
-                        }
-                    ?>
+                <?php echo generateOptions($components, 'Дополнительный куллер', $computer['extra_cooler_id']); ?>
             </select>
 
             <label for="additional">Additional Components:</label>

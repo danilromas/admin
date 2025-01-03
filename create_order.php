@@ -32,30 +32,16 @@ function sendTelegramNotification($message) {
     $botToken = '6811663386:AAFD--8cBLJjjac0maWmW_-7GcmXzV1B3to';  // Ваш токен бота
     $chatId = '-1002060916773';  // Ваш правильный chat_id
 
-    // Кодируем сообщение для URL
-    $message = urlencode($message);
+    $url = "https://api.telegram.org/bot{$botToken}/sendMessage?chat_id={$chatId}&text=" . urlencode($message);
 
-    // Формируем URL
-    $url = "https://api.telegram.org/bot{$botToken}/sendMessage?chat_id={$chatId}&text={$message}";
-
-    // Инициализируем cURL
     $ch = curl_init();
-
-    // Устанавливаем параметры cURL
     curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
-    // Исполняем запрос
     $response = curl_exec($ch);
-
-    // Проверяем на ошибки
     if ($response === false) {
         error_log("Telegram API request failed: " . curl_error($ch));
-    } else {
-        error_log("Telegram API request successful: " . $response);
     }
-
-    // Закрываем cURL сессию
     curl_close($ch);
 }
 
@@ -66,35 +52,20 @@ function sendTelegramNotification1($message) {
     $botToken = '6811663386:AAFD--8cBLJjjac0maWmW_-7GcmXzV1B3to';  // Ваш токен бота
     $chatId = '-4574327227';  // Ваш правильный chat_id
 
-    // Кодируем сообщение для URL
-    $message = urlencode($message);
+    $url = "https://api.telegram.org/bot{$botToken}/sendMessage?chat_id={$chatId}&text=" . urlencode($message);
 
-    // Формируем URL
-    $url = "https://api.telegram.org/bot{$botToken}/sendMessage?chat_id={$chatId}&text={$message}";
-
-    // Инициализируем cURL
     $ch = curl_init();
-
-    // Устанавливаем параметры cURL
     curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
-    // Исполняем запрос
     $response = curl_exec($ch);
-
-    // Проверяем на ошибки
     if ($response === false) {
         error_log("Telegram API request failed: " . curl_error($ch));
-    } else {
-        error_log("Telegram API request successful: " . $response);
     }
-
-    // Закрываем cURL сессию
     curl_close($ch);
 }
 
 sendTelegramNotification1("Новый заказ!");
-
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Получение данных из формы
@@ -113,10 +84,49 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $case_id = intval($_POST['case']);
     $cpu_cooler_id = intval($_POST['cpu_cooler']);
     $extra_cooler_id = !empty($_POST['extra_cooler']) ? intval($_POST['extra_cooler']) : null;
-    $additional = isset($_POST['additional']) ? $_POST['additional'] : '';  // Используем isset
-    $additional_price = isset($_POST['additional_price']) ? floatval($_POST['additional_price']) : 0.0;  // Используем isset
+    $additional = isset($_POST['additional']) ? $_POST['additional'] : '';
+    $additional_price = isset($_POST['additional_price']) ? floatval($_POST['additional_price']) : 0.0;
 
-    // Список используемых компонентов для расчета общей стоимости
+    // Получение названий компонентов
+    function getComponentName($id, $conn) {
+        $sql = "SELECT name FROM components WHERE id = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $stmt->bind_result($name);
+        $stmt->fetch();
+        $stmt->close();
+        return $name;
+    }
+
+    // Получение названия ПК
+    function getComputerName($computer_id, $conn) {
+        $sql = "SELECT name FROM computers WHERE id = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("i", $computer_id);
+        $stmt->execute();
+        $stmt->bind_result($name);
+        $stmt->fetch();
+        $stmt->close();
+        return $name;
+    }
+
+    // Получение названий компонентов
+    $motherboard_name = getComponentName($motherboard_id, $conn);
+    $processor_name = getComponentName($processor_id, $conn);
+    $ram_name = getComponentName($ram_id, $conn);
+    $gpu_name = getComponentName($gpu_id, $conn);
+    $psu_name = getComponentName($psu_id, $conn);
+    $ssd_name = getComponentName($ssd_id, $conn);
+    $hdd_name = getComponentName($hdd_id, $conn);
+    $case_name = getComponentName($case_id, $conn);
+    $cpu_cooler_name = getComponentName($cpu_cooler_id, $conn);
+    $extra_cooler_name = $extra_cooler_id !== null ? getComponentName($extra_cooler_id, $conn) : null;
+
+    // Получаем название ПК
+    $computer_name = getComputerName($computer_id, $conn);
+
+    // Список компонентов для расчета общей стоимости
     $componentIds = [
         $motherboard_id,
         $processor_id,
@@ -133,10 +143,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $componentIds[] = $extra_cooler_id;
     }
 
-    // Рассчитываем общую стоимость выбранных компонентов
+    // Рассчитываем общую стоимость компонентов
     $total_price = calculateComponentTotal($componentIds, $conn);
 
-    // Получаем наценку и базовую цену компьютера
+    // Получаем базовую цену и наценку
     $sqlPrice = "SELECT base_price, markup FROM computers WHERE id = ?";
     $stmtPrice = $conn->prepare($sqlPrice);
     $stmtPrice->bind_param("i", $computer_id);
@@ -145,10 +155,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $stmtPrice->fetch();
     $stmtPrice->close();
 
-    // Рассчитываем финальную цену
-    $final_price =  $markup + $total_price + $additional_price;
+    // Финальная цена
+    $final_price = $markup + $total_price + $additional_price;
 
-    // Создание заказа
+    // Создаем заказ
     $sql = "
         INSERT INTO orders (
             computer_id, date, name, city, delivery, 
@@ -163,36 +173,52 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         )
     ";
     $stmt = $conn->prepare($sql);
+    $stmt->bind_param(
+        "isssiiiiiiiiisiidd",
+        $computer_id, $date, $name, $city, $delivery,
+        $motherboard_id, $processor_id, $ram_id, $gpu_id, $psu_id,
+        $ssd_id, $hdd_id, $case_id, $cpu_cooler_id, $extra_cooler_id,
+        $additional, $additional_price, $final_price
+    );
 
-    // Проверяем и привязываем параметры
-    if ($stmt) {
-        $stmt->bind_param("issssiiiiiiiiisssd", 
-            $computer_id, $date, $name, $city, $delivery, 
-            $motherboard_id, $processor_id, $ram_id, $gpu_id, $psu_id,
-            $ssd_id, $hdd_id, $case_id, $cpu_cooler_id, $extra_cooler_id,
-            $additional, $additional_price, $final_price  // Используем $final_price
-        );
+    if ($stmt->execute()) {
+        // Формируем характеристики для сообщения
+        $characteristics = "Материнская плата: {$motherboard_name}\n" . 
+                           "Процессор: {$processor_name}\n" . 
+                           "ОЗУ: {$ram_name}\n" . 
+                           "Видеокарта: {$gpu_name}\n" . 
+                           "Блок питания: {$psu_name}\n" . 
+                           "SSD: {$ssd_name}\n" . 
+                           "HDD: {$hdd_name}\n" . 
+                           "Корпус: {$case_name}\n" . 
+                           "Охладитель процессора: {$cpu_cooler_name}\n";
 
-        // Исполняем запрос
-        if ($stmt->execute()) {
-            // Если заказ успешно создан, уменьшаем количество компонентов на складе
-
-            // Отправка уведомления в Telegram
-            $message = "Новый заказ:\n\nНазвание: {$name}\nГород: {$city}\nОбщая цена: {$final_price}₽ \n @andreygpu";
-            sendTelegramNotification($message);
-            sendTelegramNotification1($message);
-
-            // Перенаправление на страницу подтверждения
-            echo "Order successfully created!";
-            exit();
-        } else {
-            echo "Error: " . $stmt->error;
+        if ($extra_cooler_name !== null) {
+            $characteristics .= "Доп. охладитель: {$extra_cooler_name}\n";
         }
 
-        $stmt->close();
+        // Формируем сообщение
+        $message = "Новый заказ:\n\n" . 
+                   "Название ПК: {$computer_name}\n" .  // Выводим название ПК
+                   "Имя клиента: {$name}\n" . 
+                   "Город: {$city}\n" . 
+                   "Доставка: {$delivery}\n" . 
+                   "Дополнительно: {$additional}\n" . 
+                   "Общая цена: {$final_price}₽\n\n" . 
+                   "Характеристики:\n{$characteristics}";
+
+        // Отправляем уведомления
+        sendTelegramNotification($message);
+        sendTelegramNotification1($message);
+
+        // Подтверждение успешного заказа
+        echo "Order successfully created!";
+        exit();
     } else {
-        echo "Error preparing statement: " . $conn->error;
+        echo "Error: " . $stmt->error;
     }
+
+    $stmt->close();
 }
 
 $conn->close();

@@ -191,7 +191,7 @@ $sql = "
     LEFT JOIN components cs ON o.case_id = cs.id
     LEFT JOIN components cpu_c ON o.cpu_cooler_id = cpu_c.id
     LEFT JOIN components e_c ON o.extra_cooler_id = e_c.id
-    WHERE o.status IN ('куплен', 'отказ')
+    WHERE o.status NOT IN ('куплен', 'отказ')
     ORDER BY $order_by $sort
 ";
 
